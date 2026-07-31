@@ -1,75 +1,34 @@
-# Python
+# Python Caches & Virtual Environments
 __pycache__/
 *.py[cod]
-*.pyo
-*.pyd
-*.so
-.Python
 venv/
-env/
 .venv/
-ENV/
-*.egg-info/
-dist/
-build/
-.pytest_cache/
-.coverage
-htmlcov/
 
-# Environment variables (contains secrets!)
+# Environment Variables & Secrets
 .env
 .env.*
 !.env.example
 
-# Uploaded files (user resumes/files)
+# Datasets Folder (large raw data files)
+datasets/*
+!datasets/.gitkeep
+
+
+# Uploaded User Files
 uploads/*
 !uploads/.gitkeep
 
-# Machine Learning & Trained Models
-trained_models/*
-!trained_models/.gitkeep
-*.joblib
-*.pkl
-*.pth
-*.pt
-*.h5
-*.onnx
-*.bin
-*.model
-
-# Datasets (large CSVs / raw data)
-datasets/*
-!datasets/.gitkeep
-*.csv
-*.tsv
-*.parquet
-
-# Node.js / React
+# Node.js & React Builds
 node_modules/
 frontend/build/
 build/
-coverage/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnp/
-.pnp.js
 
-# IDE & OS
+# Database Files
+*.db
+*.sqlite
+
+# OS & IDE Caches
 .vscode/
 .idea/
-*.swp
-*.swo
 .DS_Store
 Thumbs.db
-ehthumbs.db
-Desktop.ini
-
-# Logs
-*.log
-
-# Database
-*.sqlite
-*.sqlite3
-*.db
-
