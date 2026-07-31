@@ -1,0 +1,75 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.Python
+venv/
+env/
+.venv/
+ENV/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environment variables (contains secrets!)
+.env
+.env.*
+!.env.example
+
+# Uploaded files (user resumes/files)
+uploads/*
+!uploads/.gitkeep
+
+# Machine Learning & Trained Models
+trained_models/*
+!trained_models/.gitkeep
+*.joblib
+*.pkl
+*.pth
+*.pt
+*.h5
+*.onnx
+*.bin
+*.model
+
+# Datasets (large CSVs / raw data)
+datasets/*
+!datasets/.gitkeep
+*.csv
+*.tsv
+*.parquet
+
+# Node.js / React
+node_modules/
+frontend/build/
+build/
+coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp/
+.pnp.js
+
+# IDE & OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Logs
+*.log
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
