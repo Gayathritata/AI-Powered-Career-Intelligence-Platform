@@ -12,29 +12,43 @@ const SAMPLE_RESUMES = [
     role: 'Frontend Engineer',
     icon: '⚡',
     filename: 'sarah_frontend_engineer.pdf',
-    text: `Frontend Engineer specializing in React, TypeScript, HTML5, CSS3, Tailwind CSS, Redux Toolkit, and Web Performance Optimization.
+    text: `SARAH CONNOR
+sarah.connor@example.com | +1 (415) 555-0199 | San Francisco, CA
+https://linkedin.com/in/sarah-connor-frontend | https://github.com/sarahconnor
 
-Frontend Web Developer
-- Built responsive single-page web applications using React, Next.js, and TypeScript.
-- Designed reusable UI component libraries with Tailwind CSS and CSS Modules.
-- Optimized web application page load speed, state management, and accessibility (a11y).
+SUMMARY
+Creative and detail-oriented Frontend Engineer with over 4 years of experience crafting high-performance, accessible, and dynamic web applications. Specialized in modern React ecosystems, TypeScript, Tailwind CSS, state management, and web vital optimizations.
 
-Education: B.S. Computer Science, University of California, Berkeley.`,
+WORK EXPERIENCE
+Senior Frontend Web Developer
+Acme Tech Systems, San Francisco, CA | 2022 - Present
+- Architected and built responsive web applications using React, Next.js, and TypeScript.
+- Designed reusable UI component libraries with Tailwind CSS, reducing development cycle times by 30%.
+- Optimized page load speeds and web vitals, raising Lighthouse performance scores from 72 to 98.
+
+Software Engineering Intern
+Innovate Labs, San Jose, CA | 2021 - 2022
+- Developed interactive user interfaces using React, Redux Toolkit, and JavaScript (ES6+).
+- Collaborated with UX designers to translate Figma mockups into accessible HTML5/CSS3 components.
+
+TECHNICAL SKILLS
+React, TypeScript, HTML5, CSS3, Tailwind CSS, Redux Toolkit, Next.js, JavaScript, Git, REST APIs
+
+EDUCATION
+B.S. Computer Science, University of California, Berkeley (2021)`,
     entities: [
       { text: 'Frontend Engineer', label: 'ROLE', start: 0, end: 17 },
-      { text: 'React', label: 'SKILL', start: 34, end: 39 },
-      { text: 'TypeScript', label: 'SKILL', start: 41, end: 51 },
-      { text: 'HTML5', label: 'SKILL', start: 53, end: 58 },
-      { text: 'CSS3', label: 'SKILL', start: 60, end: 64 },
-      { text: 'Tailwind CSS', label: 'SKILL', start: 66, end: 78 },
-      { text: 'Redux Toolkit', label: 'SKILL', start: 80, end: 93 },
-      { text: 'Frontend Web Developer', label: 'ROLE', start: 135, end: 157 },
-      { text: 'React', label: 'SKILL', start: 215, end: 220 },
-      { text: 'Next.js', label: 'SKILL', start: 222, end: 229 },
-      { text: 'TypeScript', label: 'SKILL', start: 235, end: 245 },
-      { text: 'Tailwind CSS', label: 'SKILL', start: 301, end: 313 },
-      { text: 'B.S. Computer Science', label: 'EDUCATION', start: 405, end: 426 },
-      { text: 'University of California, Berkeley', label: 'EDUCATION', start: 428, end: 462 }
+      { text: 'San Francisco, CA', label: 'LOCATION', start: 62, end: 79 },
+      { text: 'React', label: 'SKILL', start: 240, end: 245 },
+      { text: 'TypeScript', label: 'SKILL', start: 257, end: 267 },
+      { text: 'Tailwind CSS', label: 'SKILL', start: 269, end: 281 },
+      { text: 'Senior Frontend Web Developer', label: 'ROLE', start: 350, end: 379 },
+      { text: 'React', label: 'SKILL', start: 470, end: 475 },
+      { text: 'Next.js', label: 'SKILL', start: 477, end: 484 },
+      { text: 'TypeScript', label: 'SKILL', start: 490, end: 500 },
+      { text: 'Software Engineering Intern', label: 'ROLE', start: 650, end: 677 },
+      { text: 'B.S. Computer Science', label: 'EDUCATION', start: 900, end: 921 },
+      { text: 'University of California, Berkeley', label: 'EDUCATION', start: 923, end: 957 }
     ],
     predictions: [
       { career: 'Frontend Engineer', confidence: 94.6 },
@@ -48,34 +62,46 @@ Education: B.S. Computer Science, University of California, Berkeley.`,
     role: 'Full Stack Web Developer',
     icon: '💻',
     filename: 'alex_fullstack_dev.pdf',
-    text: `Experienced Full Stack Web Developer with expertise in React, Node.js, Python, FastAPI, PostgreSQL, Docker, AWS, and Git.
+    text: `ALEX RIVERA
+alex.rivera@devstudio.io | +1 (206) 555-0144 | Seattle, WA
+https://linkedin.com/in/alexrivera-dev | https://github.com/arivera-code
 
+SUMMARY
+Versatile Full Stack Web Developer with 5+ years of experience engineering scalable web applications, RESTful microservices, and database systems. Proficient across the entire stack, from React/Tailwind frontend interfaces to FastAPI/Python backend servers and PostgreSQL datastores.
+
+WORK EXPERIENCE
 Full Stack Web Developer
-- Led full stack web application development from architecture to production deployment.
-- Designed REST APIs with FastAPI, Node.js, and PostgreSQL database schemas.
-- Developed interactive frontend user interfaces using React and Tailwind CSS.
-- Containerized microservices using Docker and deployed on AWS EC2.
+CloudScale Solutions, Seattle, WA | 2021 - Present
+- Led full stack web application development from initial database architecture to AWS cloud deployment.
+- Designed high-performance REST APIs with FastAPI, Python, Node.js, and PostgreSQL database schemas.
+- Developed dynamic single-page applications using React, TypeScript, and Tailwind CSS.
+- Containerized microservices using Docker and deployed with CI/CD pipelines on AWS EC2.
 
-Education: B.S. Computer Science, Stanford University (2021).`,
+Full Stack Engineering Intern
+DataTech Innovations, Seattle, WA | 2020 - 2021
+- Assisted in building backend API endpoints and integrating frontend React UI views.
+- Conducted database query optimization in PostgreSQL, improving response latency by 25%.
+
+TECHNICAL SKILLS
+React, Node.js, Python, FastAPI, PostgreSQL, Docker, AWS, Git, TypeScript, Tailwind CSS, Redis
+
+EDUCATION
+B.S. Computer Science, Stanford University (2020)`,
     entities: [
-      { text: 'Full Stack Web Developer', label: 'ROLE', start: 12, end: 36 },
-      { text: 'React', label: 'SKILL', start: 57, end: 62 },
-      { text: 'Node.js', label: 'SKILL', start: 64, end: 71 },
-      { text: 'Python', label: 'SKILL', start: 73, end: 79 },
-      { text: 'FastAPI', label: 'SKILL', start: 81, end: 88 },
-      { text: 'PostgreSQL', label: 'SKILL', start: 90, end: 100 },
-      { text: 'Docker', label: 'SKILL', start: 102, end: 108 },
-      { text: 'AWS', label: 'SKILL', start: 110, end: 113 },
-      { text: 'Full Stack Web Developer', label: 'ROLE', start: 125, end: 149 },
-      { text: 'FastAPI', label: 'SKILL', start: 247, end: 254 },
-      { text: 'Node.js', label: 'SKILL', start: 256, end: 263 },
-      { text: 'PostgreSQL', label: 'SKILL', start: 269, end: 279 },
-      { text: 'React', label: 'SKILL', start: 357, end: 362 },
-      { text: 'Tailwind CSS', label: 'SKILL', start: 367, end: 379 },
-      { text: 'Docker', label: 'SKILL', start: 426, end: 432 },
-      { text: 'AWS', label: 'SKILL', start: 449, end: 452 },
-      { text: 'B.S. Computer Science', label: 'EDUCATION', start: 477, end: 498 },
-      { text: 'Stanford University', label: 'EDUCATION', start: 500, end: 519 }
+      { text: 'Full Stack Web Developer', label: 'ROLE', start: 0, end: 24 },
+      { text: 'Seattle, WA', label: 'LOCATION', start: 60, end: 71 },
+      { text: 'React', label: 'SKILL', start: 250, end: 255 },
+      { text: 'FastAPI', label: 'SKILL', start: 280, end: 287 },
+      { text: 'Python', label: 'SKILL', start: 288, end: 294 },
+      { text: 'PostgreSQL', label: 'SKILL', start: 300, end: 310 },
+      { text: 'Full Stack Web Developer', label: 'ROLE', start: 360, end: 384 },
+      { text: 'FastAPI', label: 'SKILL', start: 490, end: 497 },
+      { text: 'Node.js', label: 'SKILL', start: 507, end: 514 },
+      { text: 'PostgreSQL', label: 'SKILL', start: 520, end: 530 },
+      { text: 'Docker', label: 'SKILL', start: 660, end: 666 },
+      { text: 'AWS', label: 'SKILL', start: 700, end: 703 },
+      { text: 'B.S. Computer Science', label: 'EDUCATION', start: 940, end: 961 },
+      { text: 'Stanford University', label: 'EDUCATION', start: 963, end: 982 }
     ],
     predictions: [
       { career: 'Full Stack Web Developer', confidence: 95.8 },
@@ -89,28 +115,44 @@ Education: B.S. Computer Science, Stanford University (2021).`,
     role: 'Backend Engineer',
     icon: '⚙️',
     filename: 'jordan_backend_engineer.pdf',
-    text: `Backend Engineer specializing in Python, FastAPI, Django, PostgreSQL, Redis, Microservices Architecture, and REST API Security.
+    text: `JORDAN LEE
+jordan.lee@backendcraft.com | +1 (512) 555-0188 | Austin, TX
+https://linkedin.com/in/jordanlee-backend | https://github.com/jordanlee-dev
 
-Backend Software Developer
-- Architected high-throughput backend APIs using FastAPI, Uvicorn, and SQL databases.
-- Engineered caching layers with Redis and optimized SQL query performance.
-- Built authentication services using OAuth2, JWT tokens, and password hashing.
+SUMMARY
+High-performance Backend Engineer with deep domain knowledge in distributed systems, high-throughput microservices, API security, and database indexing. Expert in Python, FastAPI, Django, PostgreSQL, Redis, Docker, and Cloud infrastructure.
 
-Education: B.S. Computer Engineering, MIT.`,
+WORK EXPERIENCE
+Senior Backend Software Engineer
+ScaleVector Inc, Austin, TX | 2022 - Present
+- Architected high-throughput backend APIs using Python, FastAPI, Uvicorn, and PostgreSQL.
+- Engineered caching layers with Redis, reducing database load during peak traffic by 45%.
+- Implemented microservice authentication using OAuth2, JWT tokens, and bcrypt security standards.
+
+Backend Software Engineering Intern
+Nexus Systems, Austin, TX | 2021 - 2022
+- Developed REST API endpoints and written automated unit & integration test suites.
+- Optimized complex SQL queries and index strategies in PostgreSQL.
+
+TECHNICAL SKILLS
+Python, FastAPI, Django, PostgreSQL, Redis, Docker, Kubernetes, AWS, SQL, REST APIs, Microservices, Git
+
+EDUCATION
+B.S. Computer Engineering, MIT (2021)`,
     entities: [
       { text: 'Backend Engineer', label: 'ROLE', start: 0, end: 16 },
-      { text: 'Python', label: 'SKILL', start: 33, end: 39 },
-      { text: 'FastAPI', label: 'SKILL', start: 41, end: 48 },
-      { text: 'Django', label: 'SKILL', start: 50, end: 56 },
-      { text: 'PostgreSQL', label: 'SKILL', start: 58, end: 68 },
-      { text: 'Redis', label: 'SKILL', start: 70, end: 75 },
-      { text: 'Microservices', label: 'SKILL', start: 77, end: 90 },
-      { text: 'Backend Software Developer', label: 'ROLE', start: 125, end: 151 },
-      { text: 'FastAPI', label: 'SKILL', start: 209, end: 216 },
-      { text: 'Redis', label: 'SKILL', start: 288, end: 293 },
-      { text: 'SQL', label: 'SKILL', start: 312, end: 315 },
-      { text: 'B.S. Computer Engineering', label: 'EDUCATION', start: 417, end: 442 },
-      { text: 'MIT', label: 'EDUCATION', start: 444, end: 447 }
+      { text: 'Austin, TX', label: 'LOCATION', start: 60, end: 70 },
+      { text: 'Python', label: 'SKILL', start: 230, end: 236 },
+      { text: 'FastAPI', label: 'SKILL', start: 238, end: 245 },
+      { text: 'Django', label: 'SKILL', start: 247, end: 253 },
+      { text: 'PostgreSQL', label: 'SKILL', start: 255, end: 265 },
+      { text: 'Redis', label: 'SKILL', start: 267, end: 272 },
+      { text: 'Senior Backend Software Engineer', label: 'ROLE', start: 330, end: 362 },
+      { text: 'FastAPI', label: 'SKILL', start: 450, end: 457 },
+      { text: 'Redis', label: 'SKILL', start: 520, end: 525 },
+      { text: 'PostgreSQL', label: 'SKILL', start: 570, end: 580 },
+      { text: 'B.S. Computer Engineering', label: 'EDUCATION', start: 900, end: 925 },
+      { text: 'MIT', label: 'EDUCATION', start: 927, end: 930 }
     ],
     predictions: [
       { career: 'Backend Engineer', confidence: 93.4 },

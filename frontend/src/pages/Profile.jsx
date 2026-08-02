@@ -68,6 +68,12 @@ const Profile = () => {
     setIsEditing(false);
   };
 
+  const experienceItems = Array.isArray(profileData.experience)
+    ? profileData.experience
+    : profileData.experience
+      ? [profileData.experience]
+      : [];
+
   return (
     <>
       <Navbar />
@@ -170,42 +176,34 @@ const Profile = () => {
 
             </div>
 
-            {/* CONTACT DETAILS & SOCIAL LINKS GRID */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+            {/* CONTACT DETAILS GRID */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
               
-              <div style={{ padding: 14, borderRadius: 10, background: 'rgba(255, 255, 255, 0.03)', border: '1px solid var(--border-subtle)' }}>
+              <div style={{ padding: 16, borderRadius: 10, background: 'rgba(255, 255, 255, 0.03)', border: '1px solid var(--border-subtle)' }}>
                 <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 700, marginBottom: 4 }}>EMAIL ADDRESS</div>
                 {isEditing ? (
                   <input type="email" name="email" value={formData.email || ''} onChange={handleInputChange} style={{ width: '100%', padding: 6, borderRadius: 6, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', fontSize: 13 }} />
                 ) : (
-                  <div style={{ fontWeight: 600, fontSize: 14, color: '#fff' }}>✉️ {profileData.email}</div>
+                  <div style={{ fontWeight: 600, fontSize: 14, color: '#fff' }}>✉️ {profileData.email || 'Not specified in resume'}</div>
                 )}
               </div>
 
-              <div style={{ padding: 14, borderRadius: 10, background: 'rgba(255, 255, 255, 0.03)', border: '1px solid var(--border-subtle)' }}>
+              <div style={{ padding: 16, borderRadius: 10, background: 'rgba(255, 255, 255, 0.03)', border: '1px solid var(--border-subtle)' }}>
                 <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 700, marginBottom: 4 }}>PHONE NUMBER</div>
                 {isEditing ? (
                   <input type="text" name="phone" value={formData.phone || ''} onChange={handleInputChange} style={{ width: '100%', padding: 6, borderRadius: 6, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', fontSize: 13 }} />
                 ) : (
-                  <div style={{ fontWeight: 600, fontSize: 14, color: '#fff' }}>📞 {profileData.phone}</div>
+                  <div style={{ fontWeight: 600, fontSize: 14, color: '#fff' }}>📞 {profileData.phone || 'Not specified in resume'}</div>
                 )}
               </div>
 
-              <div style={{ padding: 14, borderRadius: 10, background: 'rgba(255, 255, 255, 0.03)', border: '1px solid var(--border-subtle)' }}>
-                <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 700, marginBottom: 4 }}>LOCATION</div>
+              <div style={{ padding: 16, borderRadius: 10, background: 'rgba(255, 255, 255, 0.03)', border: '1px solid var(--border-subtle)' }}>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 700, marginBottom: 4 }}>CANDIDATE LOCATION</div>
                 {isEditing ? (
                   <input type="text" name="location" value={formData.location || ''} onChange={handleInputChange} style={{ width: '100%', padding: 6, borderRadius: 6, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', fontSize: 13 }} />
                 ) : (
-                  <div style={{ fontWeight: 600, fontSize: 14, color: '#fff' }}>📍 {profileData.location || 'San Francisco, CA'}</div>
+                  <div style={{ fontWeight: 600, fontSize: 14, color: '#fff' }}>📍 {profileData.location || 'Not specified in resume'}</div>
                 )}
-              </div>
-
-              <div style={{ padding: 14, borderRadius: 10, background: 'rgba(255, 255, 255, 0.03)', border: '1px solid var(--border-subtle)' }}>
-                <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 700, marginBottom: 4 }}>PORTFOLIO / SOCIAL LINKS</div>
-                <div style={{ fontSize: 13, display: 'flex', gap: 10 }}>
-                  <a href={profileData.linkedin || '#'} target="_blank" rel="noreferrer" style={{ color: '#60a5fa', textDecoration: 'none', fontWeight: 600 }}>LinkedIn ↗</a>
-                  <a href={profileData.github || '#'} target="_blank" rel="noreferrer" style={{ color: '#60a5fa', textDecoration: 'none', fontWeight: 600 }}>GitHub ↗</a>
-                </div>
               </div>
 
             </div>
@@ -215,19 +213,19 @@ const Profile = () => {
           {/* PROFESSIONAL SUMMARY CARD */}
           <div className="glass-card fade-in-up" style={{ padding: 32, marginBottom: 28 }}>
             <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-              📄 Extracted Professional Summary
+              📄 Professional Summary
             </h3>
             {isEditing ? (
               <textarea
                 name="summary"
-                rows={4}
+                rows={8}
                 value={formData.summary || ''}
                 onChange={handleInputChange}
                 style={{ width: '100%', padding: 12, borderRadius: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', fontSize: 14, lineHeight: 1.6 }}
               />
             ) : (
-              <p style={{ color: 'var(--text-primary)', lineHeight: 1.7, fontSize: 15, background: 'rgba(255, 255, 255, 0.02)', padding: 18, borderRadius: 10, margin: 0 }}>
-                {profileData.summary}
+              <p style={{ color: 'var(--text-primary)', lineHeight: 1.7, fontSize: 15, background: 'rgba(255, 255, 255, 0.02)', padding: 18, borderRadius: 10, margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                {profileData.summary || 'No professional summary section provided in uploaded resume.'}
               </p>
             )}
           </div>
@@ -235,31 +233,35 @@ const Profile = () => {
           {/* EXTRACTED TECHNICAL SKILLS CARD */}
           <div className="glass-card fade-in-up" style={{ padding: 32, marginBottom: 28 }}>
             <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 14, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-              ⚡ Extracted Technical Skills ({(isEditing ? formData.skills : profileData.skills).length})
+              ⚡ Extracted Skills ({(isEditing ? (formData.skills || []) : (profileData.skills || [])).length})
             </h3>
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-              {(isEditing ? formData.skills : profileData.skills).map((skill) => (
-                <span key={skill} className="badge badge-primary" style={{ padding: '8px 16px', fontSize: 14, display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                  {skill}
-                  {isEditing && (
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveSkill(skill)}
-                      style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', fontWeight: 800, fontSize: 14, padding: 0 }}
-                    >
-                      ×
-                    </button>
-                  )}
-                </span>
-              ))}
-            </div>
+            {(isEditing ? (formData.skills || []) : (profileData.skills || [])).length > 0 ? (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                {(isEditing ? (formData.skills || []) : (profileData.skills || [])).map((skill) => (
+                  <span key={skill} className="badge badge-primary" style={{ padding: '8px 16px', fontSize: 14, display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                    {skill}
+                    {isEditing && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSkill(skill)}
+                        style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', fontWeight: 800, fontSize: 14, padding: 0 }}
+                      >
+                        ×
+                      </button>
+                    )}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p style={{ color: 'var(--text-muted)' }}>No skills extracted from resume.</p>
+            )}
 
             {isEditing && (
               <form onSubmit={handleAddSkill} style={{ display: 'flex', gap: 10, maxWidth: 360, marginTop: 16 }}>
                 <input
                   type="text"
-                  placeholder="Add new technical skill..."
+                  placeholder="Add new skill..."
                   value={newSkill}
                   onChange={(e) => setNewSkill(e.target.value)}
                   style={{ flex: 1, padding: '8px 12px', borderRadius: 6, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', fontSize: 13 }}
@@ -271,54 +273,71 @@ const Profile = () => {
             )}
           </div>
 
-          {/* WORK EXPERIENCE HISTORY CARD */}
-          <div className="glass-card fade-in-up" style={{ padding: 32, marginBottom: 28 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 18, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-              💼 Work Experience History
-            </h3>
+          {/* WORK EXPERIENCE & INTERNSHIPS */}
+          {experienceItems.length > 0 && (
+            <div className="glass-card fade-in-up" style={{ padding: 32, marginBottom: 28 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 18, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                💼 Work Experience & Internships
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {experienceItems.map((exp, idx) => {
+                  const title = exp?.title || exp?.role || 'Role / Position';
+                  const company = exp?.company || exp?.organization || 'Company / Organization';
+                  const duration = exp?.duration || exp?.period || 'Duration not specified';
+                  const details = Array.isArray(exp?.details) ? exp.details : exp?.details ? [exp.details] : [];
 
-            {profileData.experience && profileData.experience.length > 0 ? (
-              profileData.experience.map((exp, idx) => (
-                <div key={idx} style={{
-                  padding: 20,
-                  borderRadius: 12,
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  borderLeft: '4px solid var(--color-primary)',
-                  marginBottom: 16,
-                }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginBottom: 6 }}>
-                    <h4 style={{ fontWeight: 800, fontSize: 18, color: '#fff' }}>{exp.title}</h4>
-                    <span style={{ fontSize: 13, color: 'var(--color-primary-light)', fontWeight: 700 }}>{exp.duration}</span>
-                  </div>
-                  <div style={{ color: 'var(--text-secondary)', fontSize: 14, fontWeight: 600, marginBottom: 12 }}>
-                    🏢 {exp.company}
-                  </div>
-                  {exp.details && exp.details.length > 0 && (
-                    <ul style={{ margin: 0, paddingLeft: 20, color: 'var(--text-secondary)', fontSize: 14, lineHeight: 1.6 }}>
-                      {exp.details.map((bullet, bulletIdx) => (
-                        <li key={bulletIdx}>{bullet}</li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              ))
-            ) : (
-              <p style={{ color: 'var(--text-muted)' }}>No work experience entries extracted from resume.</p>
-            )}
-          </div>
+                  return (
+                    <div key={idx} style={{ padding: 18, borderRadius: 10, background: 'rgba(255, 255, 255, 0.02)', borderLeft: '3px solid #34d399' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 6 }}>
+                        <div style={{ fontWeight: 800, fontSize: 16, color: '#fff' }}>{title}</div>
+                        <div style={{ fontSize: 13, color: '#6ee7b7', fontWeight: 700 }}>{duration}</div>
+                      </div>
+                      <div style={{ fontSize: 14, color: '#cbd5e1', fontWeight: 600, marginBottom: 8 }}>{company}</div>
+                      {details.length > 0 && (
+                        <ul style={{ margin: 0, paddingLeft: 18, color: 'var(--text-secondary)', fontSize: 14, lineHeight: 1.6 }}>
+                          {details.map((detail, dIdx) => (
+                            <li key={dIdx}>{detail}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
-          {/* KEY PROJECTS CARD */}
+          {/* KEY PROJECTS (TITLES & EXTRACTED TEXT) */}
           {profileData.projects && profileData.projects.length > 0 && (
             <div className="glass-card fade-in-up" style={{ padding: 32, marginBottom: 28 }}>
               <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 18, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
                 🚀 Highlighted Projects
               </h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 {profileData.projects.map((proj, idx) => (
-                  <div key={idx} style={{ padding: 18, borderRadius: 10, background: 'rgba(255, 255, 255, 0.03)', border: '1px solid var(--border-subtle)' }}>
-                    <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 4, color: '#fff' }}>{proj.name}</div>
-                    <div style={{ fontSize: 12, color: '#60a5fa', fontWeight: 600, marginBottom: 8 }}>Tech Stack: {proj.techStack}</div>
-                    <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: 0, lineHeight: 1.5 }}>{proj.description}</p>
+                  <div key={idx} style={{ padding: 18, borderRadius: 10, background: 'rgba(255, 255, 255, 0.02)', borderLeft: '3px solid #60a5fa' }}>
+                    <div style={{
+                      fontWeight: 900,
+                      fontSize: 16,
+                      marginBottom: 8,
+                      color: '#f8fafc',
+                      display: 'inline-block',
+                      padding: '6px 10px',
+                      borderRadius: 999,
+                      background: 'linear-gradient(90deg, rgba(96, 165, 250, 0.22), rgba(59, 130, 246, 0.35))',
+                      border: '1px solid rgba(96, 165, 250, 0.35)'
+                    }}>
+                      {proj.name}
+                    </div>
+                    {proj.details && proj.details.length > 0 ? (
+                      <div style={{ color: 'var(--text-secondary)', fontSize: 14, lineHeight: 1.6, display: 'flex', flexDirection: 'column', gap: 4, marginTop: 8 }}>
+                        {proj.details.map((detail, dIdx) => (
+                          <p key={dIdx} style={{ margin: 0 }}>{detail}</p>
+                        ))}
+                      </div>
+                    ) : proj.description ? (
+                      <p style={{ fontSize: 14, color: 'var(--text-secondary)', margin: 0, lineHeight: 1.6 }}>{proj.description}</p>
+                    ) : null}
                   </div>
                 ))}
               </div>
