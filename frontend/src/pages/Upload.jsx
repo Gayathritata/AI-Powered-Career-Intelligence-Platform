@@ -172,21 +172,8 @@ const Upload = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   
-  // Stores the active analysis output data (null by default so page starts clean until upload)
-  const [analysisResult, setAnalysisResult] = useState(() => {
-    const saved = sessionStorage.getItem('careercast_active_analysis');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed && parsed.text && parsed.predictions) {
-          return parsed;
-        }
-      } catch (e) {
-        return null;
-      }
-    }
-    return null;
-  });
+  // Stores the active analysis output data (starts clean as null until upload)
+  const [analysisResult, setAnalysisResult] = useState(null);
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -239,7 +226,7 @@ const Upload = () => {
 
       const res = await api.post('/recommendation/upload-resume', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': undefined,
         },
       });
 
@@ -247,7 +234,7 @@ const Upload = () => {
         const resultData = {
           text: res.data.text,
           entities: res.data.entities || [],
-          modelName: res.data.model_name || 'Logistic Regression Model',
+          modelName: res.data.model_name || 'XGBoost Ensemble Model',
           top1Accuracy: res.data.top1_accuracy || res.data.confidence,
           predictions: res.data.predictions || []
         };
@@ -258,7 +245,7 @@ const Upload = () => {
     } catch (err) {
       console.warn('Backend API error or connection failure:', err);
       // For plain text files, fallback to text reader + predict endpoint
-      if (file.name.endsWith('.txt')) {
+      if (file.name.toLowerCase().endsWith('.txt')) {
         const reader = new FileReader();
         reader.onload = (e) => {
           const textContent = e.target.result || '';
@@ -266,7 +253,10 @@ const Upload = () => {
         };
         reader.readAsText(file);
       } else {
-        const msg = err.response?.data?.detail || 'Failed to extract resume text. Please ensure the backend server is running and upload a valid PDF, DOCX, or TXT file.';
+        const backendDetail = err.response?.data?.detail;
+        const msg = backendDetail
+          ? (typeof backendDetail === 'string' ? backendDetail : JSON.stringify(backendDetail))
+          : (err.message || 'Failed to extract resume text. Please ensure the backend server is running and upload a valid PDF, DOCX, or TXT file.');
         setErrorMessage(msg);
       }
     } finally {
@@ -283,7 +273,7 @@ const Upload = () => {
         const resultData = {
           text: res.data.text,
           entities: res.data.entities || [],
-          modelName: res.data.model_name || 'Logistic Regression Model',
+          modelName: res.data.model_name || 'XGBoost Ensemble Model',
           top1Accuracy: res.data.top1_accuracy || res.data.confidence,
           predictions: res.data.predictions || []
         };
@@ -303,7 +293,7 @@ const Upload = () => {
     const resultData = {
       text: sample.text,
       entities: sample.entities,
-      modelName: 'Logistic Regression Model',
+      modelName: 'XGBoost Ensemble Model',
       top1Accuracy: sample.top1Accuracy,
       predictions: sample.predictions
     };
@@ -326,8 +316,8 @@ const Upload = () => {
           <h1 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 800, marginBottom: 8 }}>
             Upload Resume for <span className="gradient-text">Instant Output</span>
           </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: 15, maxWidth: 650, margin: '0 auto' }}>
-            Upload your resume to extract SpaCy NER entities (Skills, Roles, Education) and run the Logistic Regression Model to view live accuracy and role predictions on screen.
+          <p style={{ color: 'var(--text-secondary)', fontSize: 15, maxWidth: 680, margin: '0 auto' }}>
+            Upload your resume to extract SpaCy NER entities (Skills, Roles, Education) and run our Multi-Model AI Ensemble (XGBoost, Random Forest, Logistic Regression & SBERT) to view live accuracy and role predictions on screen.
           </p>
         </div>
 

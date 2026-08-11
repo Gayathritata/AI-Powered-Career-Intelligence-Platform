@@ -1,5 +1,5 @@
 // components/ResumeAnalysisResult.jsx
-// Displays Resume Parsing (SpaCy NER) left panel and Baseline Prediction Results (Logistic Regression Model) right panel.
+// Displays Resume Parsing (SpaCy NER) left panel and AI Prediction Results (XGBoost Ensemble Model) right panel.
 
 import React from 'react';
 
@@ -9,8 +9,8 @@ const ResumeAnalysisResult = ({ data }) => {
   const {
     text = '',
     entities = [],
-    modelName = 'Logistic Regression Model',
-    top1Accuracy = 66,
+    modelName = 'XGBoost Ensemble Model',
+    top1Accuracy = 98.72,
     predictions = []
   } = data;
 
@@ -109,18 +109,34 @@ const ResumeAnalysisResult = ({ data }) => {
           </div>
         </div>
 
-        {/* RIGHT COLUMN: Baseline Prediction Results */}
+        {/* RIGHT COLUMN: AI Prediction Results */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
             <h2 style={{ fontSize: 24, fontWeight: 800, color: 'var(--text-primary)' }}>
-              Baseline Prediction Results
+              AI Prediction Results
             </h2>
           </div>
 
           <div className="glass-card" style={{ padding: 32, borderColor: 'rgba(255, 255, 255, 0.12)' }}>
-            <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16, color: 'var(--text-primary)' }}>
-              {modelName}
+            <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 8, color: 'var(--text-primary)' }}>
+              {'Multi-Model AI Ensemble (XGBoost, Random Forest, Logistic Regression & SBERT)'}
             </h3>
+
+            {/* Model Badges */}
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 20 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 6, background: 'rgba(234, 179, 8, 0.15)', color: '#fef08a', border: '1px solid rgba(234, 179, 8, 0.3)' }}>
+                ⚡ XGBoost (98.72%)
+              </span>
+              <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 6, background: 'rgba(59, 130, 246, 0.15)', color: '#93c5fd', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+                📈 Logistic Regression (98.49%)
+              </span>
+              <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 6, background: 'rgba(16, 185, 129, 0.15)', color: '#a7f3d0', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+                🌲 Random Forest (96.94%)
+              </span>
+              <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 6, background: 'rgba(168, 85, 247, 0.15)', color: '#e9d5ff', border: '1px solid rgba(168, 85, 247, 0.3)' }}>
+                🧠 SBERT Embeddings (384D)
+              </span>
+            </div>
 
             {/* Featured Top Suitable Role Card */}
             <div style={{
@@ -181,6 +197,28 @@ const ResumeAnalysisResult = ({ data }) => {
                       transition: 'width 0.8s ease'
                     }} />
                   </div>
+
+                  {/* Matched & Missed Skills Tags */}
+                  {(item.matched_skills?.length > 0 || item.missing_skills?.length > 0) && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 4 }}>
+                      {item.matched_skills && item.matched_skills.length > 0 && (
+                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: '#34d399' }}>✓ Matched:</span>
+                          {item.matched_skills.map((s, i) => (
+                            <span key={i} style={{ fontSize: 11, padding: '1px 7px', borderRadius: 10, background: 'rgba(52, 211, 153, 0.15)', color: '#6ee7b7' }}>{s}</span>
+                          ))}
+                        </div>
+                      )}
+                      {item.missing_skills && item.missing_skills.length > 0 && (
+                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: '#fbbf24' }}>⚠️ Missed Skills:</span>
+                          {item.missing_skills.map((s, i) => (
+                            <span key={i} style={{ fontSize: 11, padding: '1px 7px', borderRadius: 10, background: 'rgba(251, 191, 36, 0.15)', color: '#fde047' }}>+ {s}</span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

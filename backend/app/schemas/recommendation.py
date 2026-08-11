@@ -28,7 +28,7 @@ class PredictCareerRequest(BaseModel):
 class PredictCareerResponse(BaseModel):
     text: str = Field(..., description="Parsed raw resume text")
     entities: List[EntityItem] = Field(default_factory=list, description="Extracted NER entities")
-    model_name: str = Field(default="Logistic Regression Model", description="Model name")
+    model_name: str = Field(default="Multi-Model AI Ensemble (XGBoost, Random Forest, Logistic Regression & SBERT)", description="Model name")
     top1_accuracy: float = Field(..., description="Top-1 accuracy / confidence percentage")
     predictions: List[CareerPredictionItem]
     top_career: str

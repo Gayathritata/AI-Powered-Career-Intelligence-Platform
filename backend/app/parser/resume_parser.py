@@ -76,6 +76,12 @@ EDUCATION_PATTERNS = [
 ]
 
 
+try:
+    import pypdf
+except ImportError:
+    pypdf = None
+
+
 def extract_text_from_bytes(file_bytes: bytes, filename: str) -> str:
     """Extract raw text content from PDF, DOCX, or plain text bytes."""
     filename_lower = filename.lower()
@@ -86,7 +92,11 @@ def extract_text_from_bytes(file_bytes: bytes, filename: str) -> str:
         if fitz:
             try:
                 doc = fitz.open(stream=file_bytes, filetype="pdf")
-                pages_text = [page.get_text() for page in doc]
+                pages_text = []
+                for page in doc:
+                    txt = page.get_text("text") or page.get_text()
+                    if txt:
+                        pages_text.append(txt)
                 extracted = "\n".join(pages_text).strip()
                 if extracted:
                     return extracted
@@ -106,32 +116,34 @@ def extract_text_from_bytes(file_bytes: bytes, filename: str) -> str:
                 print(f"[WARN] pypdf extraction failed: {e}")
 
     # 2. DOCX Text Extraction via python-docx
-    if filename_lower.endswith(".docx") and docx:
-        try:
-            import io
-            doc = docx.Document(io.BytesIO(file_bytes))
-            text = "\n".join([p.text for p in doc.paragraphs])
-            if text.strip():
-                return text
-        except Exception as e:
-            print(f"[WARN] DOCX text extraction failed: {e}")
+    if filename_lower.endswith(".docx") or filename_lower.endswith(".doc"):
+        if docx:
+            try:
+                import io
+                doc = docx.Document(io.BytesIO(file_bytes))
+                paragraphs_text = [p.text for p in doc.paragraphs if p.text.strip()]
+                for table in doc.tables:
+                    for row in table.rows:
+                        row_text = " | ".join([cell.text.strip() for cell in row.cells if cell.text.strip()])
+                        if row_text:
+                            paragraphs_text.append(row_text)
+                text = "\n".join(paragraphs_text)
+                if text.strip():
+                    return text
+            except Exception as e:
+                print(f"[WARN] DOCX text extraction failed: {e}")
 
-    # 3. Fallback text decoding with PDF binary stream sanitizer
-    try:
-        raw = file_bytes.decode("utf-8", errors="ignore")
-        if filename_lower.endswith(".pdf"):
-            # Strip PDF binary headers, stream objects, and PDF syntax tags
-            raw = re.sub(r"<</Type.*?>", " ", raw, flags=re.DOTALL)
-            raw = re.sub(r"stream.*?endstream", " ", raw, flags=re.DOTALL)
-            raw = re.sub(r"/Font<.*?>", " ", raw)
-            raw = re.sub(r"/ProcSet\[.*?\]", " ", raw)
-            raw = re.sub(r"\d+\s+\d+\s+obj.*?", " ", raw)
-            raw = re.sub(r"endobj", " ", raw)
-            raw = re.sub(r"[^\x20-\x7E\n\r\t]", " ", raw)  # Keep printable ASCII & whitespace
-            raw = re.sub(r"\s+", " ", raw).strip()
-        return raw
-    except Exception:
-        return ""
+    # 3. Fallback text decoding for plain text (.txt) or unformatted text files
+    for encoding in ["utf-8", "latin-1", "cp1252", "ascii"]:
+        try:
+            raw = file_bytes.decode(encoding)
+            cleaned = "".join(char for char in raw if char.isprintable() or char in "\n\r\t").strip()
+            if cleaned:
+                return cleaned
+        except Exception:
+            continue
+
+    return ""
 
 
 def extract_ner_entities(text: str) -> List[Dict[str, Any]]:

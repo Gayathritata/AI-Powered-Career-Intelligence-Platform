@@ -21,6 +21,7 @@ const Navbar = () => {
     { path: '/upload',    label: '📄 Upload Resume' },
     { path: '/profile',   label: '👤 Profile' },
     { path: '/results',   label: '🎯 AI Predictions' },
+    { path: '/analytics', label: '📈 Analytics' },
   ];
 
   return (

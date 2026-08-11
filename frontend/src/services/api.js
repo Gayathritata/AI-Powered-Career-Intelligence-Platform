@@ -3,11 +3,17 @@
 
 import axios from 'axios';
 
-const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/v1';
+const getBaseUrl = () => {
+  if (process.env.REACT_APP_API_URL) {
+    return process.env.REACT_APP_API_URL;
+  }
+  const hostname = typeof window !== 'undefined' && window.location.hostname ? window.location.hostname : '127.0.0.1';
+  return `http://${hostname}:8000/api/v1`;
+};
 
 const api = axios.create({
-  baseURL: BASE_URL,
-  timeout: 30000,
+  baseURL: getBaseUrl(),
+  timeout: 120000, // 120 seconds timeout for ML model inference and resume parsing
   headers: {
     'Content-Type': 'application/json',
   },

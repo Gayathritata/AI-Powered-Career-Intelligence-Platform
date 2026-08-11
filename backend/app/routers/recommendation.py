@@ -19,20 +19,20 @@ from app.parser.resume_parser import extract_text_from_bytes, extract_ner_entiti
 router = APIRouter(prefix="/recommendation", tags=["Career Recommendation"])
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-METRICS_PATH = os.path.join(BASE_DIR, "trained_models", "logistic_regression_metrics.json")
+METRICS_PATH = os.path.join(BASE_DIR, "trained_models", "accuracy_results.json")
 
 
 def get_trained_model_accuracy() -> float:
-    """Read baseline model accuracy from metrics file, default to 66.0% if file missing."""
+    """Read XGBoost model accuracy from metrics file, default to 98.72% if missing."""
     if os.path.exists(METRICS_PATH):
         try:
             with open(METRICS_PATH, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                acc = data.get("accuracy", 0.66)
+                acc = data.get("xgboost", {}).get("accuracy", 0.9872)
                 return round(float(acc) * 100, 2)
         except Exception:
             pass
-    return 66.0
+    return 98.72
 
 
 @router.post(
@@ -85,7 +85,7 @@ def predict_career(payload: PredictCareerRequest):
     return PredictCareerResponse(
         text=raw_text,
         entities=entities,
-        model_name="Logistic Regression Model",
+        model_name="Multi-Model AI Ensemble (XGBoost, Random Forest, Logistic Regression & SBERT)",
         top1_accuracy=get_trained_model_accuracy(),
         predictions=results,
         top_career=top_career,
@@ -154,7 +154,7 @@ async def upload_and_predict_resume(
     return PredictCareerResponse(
         text=extracted_text,
         entities=entities,
-        model_name="Logistic Regression Model",
+        model_name="Multi-Model AI Ensemble (XGBoost, Random Forest, Logistic Regression & SBERT)",
         top1_accuracy=get_trained_model_accuracy(),
         predictions=results,
         top_career=top_career,

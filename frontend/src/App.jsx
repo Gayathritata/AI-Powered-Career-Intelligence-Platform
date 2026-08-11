@@ -13,6 +13,7 @@ import Dashboard from './pages/Dashboard';
 const Upload  = React.lazy(() => import('./pages/Upload'));
 const Profile = React.lazy(() => import('./pages/Profile'));
 const Results = React.lazy(() => import('./pages/Results'));
+const Analytics = React.lazy(() => import('./pages/Analytics'));
 
 const Fallback = () => (
   <div style={{
@@ -31,16 +32,12 @@ const Fallback = () => (
 
 const App = () => {
   React.useEffect(() => {
-    // Check if website is opened in a fresh session
-    const isSessionActive = sessionStorage.getItem('careercast_session_active');
-    if (!isSessionActive) {
-      // Purge any stale stored resume data from previous sessions
-      localStorage.removeItem('careercast_parsed_resume');
-      localStorage.removeItem('careercast_active_analysis');
-      sessionStorage.removeItem('careercast_parsed_resume');
-      sessionStorage.removeItem('careercast_active_analysis');
-      sessionStorage.setItem('careercast_session_active', 'true');
-    }
+    // Purge all stored resume data on every page reload / refresh to return to normal stage
+    localStorage.removeItem('careercast_parsed_resume');
+    localStorage.removeItem('careercast_active_analysis');
+    sessionStorage.removeItem('careercast_parsed_resume');
+    sessionStorage.removeItem('careercast_active_analysis');
+    sessionStorage.removeItem('careercast_session_active');
   }, []);
 
   return (
@@ -58,6 +55,14 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/analytics"
+              element={
+                <ProtectedRoute>
+                  <Analytics />
                 </ProtectedRoute>
               }
             />

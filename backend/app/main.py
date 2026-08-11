@@ -25,6 +25,17 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"[WARN] Database not reachable on startup: {e}")
         print("       Start the server anyway; DB errors will surface on first request.")
+
+    # Pre-warm ML Predictor artifacts and SBERT embedder so API requests respond instantly
+    try:
+        from app.ml.predictor import CareerPredictor
+        predictor = CareerPredictor.get_instance()
+        if not predictor.is_loaded:
+            predictor.load_artifacts()
+        print("[OK] ML CareerPredictor pre-warmed on startup.")
+    except Exception as err:
+        print(f"[WARN] Could not pre-warm ML predictor: {err}")
+
     yield
     # Shutdown
 
@@ -46,7 +57,13 @@ app = FastAPI(
 # ── CORS Middleware ───────────────────────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+    ],
+    allow_origin_regex=r"http://(localhost|127\.0\.0\.1):(3000|8000|5173)",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

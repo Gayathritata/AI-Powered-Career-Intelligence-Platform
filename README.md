@@ -120,7 +120,9 @@ CareerCast/
 Used for testing resume upload and extracting user information.
 
 **Source:**  
-https://www.kaggle.com/datasets/snehaanbhawal/resume-dataset
+https://www.kaggle.com/datasets/haidermaseeh/resume-dataset
+
+https://www.kaggle.com/datasets/avishekmajhi/resume-dataset
 
 ---
 

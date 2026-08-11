@@ -264,6 +264,37 @@ const Results = () => {
                       </span>
                     </div>
                   </div>
+
+                  {/* Matched & Missed Skills (Skill Gap Analysis) */}
+                  <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {/* Matched Skills */}
+                    {item.matched_skills && item.matched_skills.length > 0 && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: '#34d399', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                          ✓ Matched Skills:
+                        </span>
+                        {item.matched_skills.map((s, i) => (
+                          <span key={i} style={{ fontSize: 12, padding: '3px 10px', borderRadius: 12, background: 'rgba(52, 211, 153, 0.15)', color: '#6ee7b7', border: '1px solid rgba(52, 211, 153, 0.3)', fontWeight: 600 }}>
+                            {s}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Missed / Missing Skills */}
+                    {item.missing_skills && item.missing_skills.length > 0 && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                          ⚠️ Missed Skills to Learn:
+                        </span>
+                        {item.missing_skills.map((s, i) => (
+                          <span key={i} style={{ fontSize: 12, padding: '3px 10px', borderRadius: 12, background: 'rgba(251, 191, 36, 0.15)', color: '#fde047', border: '1px solid rgba(251, 191, 36, 0.3)', fontWeight: 600 }}>
+                            + {s}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

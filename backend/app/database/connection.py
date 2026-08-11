@@ -10,7 +10,7 @@ from app.utils.config import settings
 # ── Engine ──────────────────────────────────────────────────────────────────
 db_url = settings.DATABASE_URL
 try:
-    temp_engine = create_engine(db_url, pool_pre_ping=True)
+    temp_engine = create_engine(db_url, pool_pre_ping=True, connect_args={"connect_timeout": 2})
     with temp_engine.connect() as conn:
         pass
     engine = temp_engine
