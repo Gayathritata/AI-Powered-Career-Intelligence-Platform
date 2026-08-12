@@ -104,6 +104,8 @@ class CareerPredictor:
 
                 self.is_loaded = True
                 print("[OK] CareerPredictor model artifacts loaded successfully.")
+                import gc
+                gc.collect()
             except Exception as e:
                 print(f"[ERROR] Failed to load model artifacts: {e}")
                 self.is_loaded = False

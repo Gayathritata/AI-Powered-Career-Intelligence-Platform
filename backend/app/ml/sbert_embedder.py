@@ -22,11 +22,27 @@ FINE_TUNED_MODEL_PATH = os.path.join(BASE_DIR, "trained_models", "sbert_job_mode
 
 
 def get_sbert_model():
-    """Lazy loader for SentenceTransformer model, prioritizing fine-tuned domain weights with robust base model fallback."""
+    """Lazy loader for SentenceTransformer model with strict memory controls for 512MB RAM limits."""
     global _SBERT_MODEL, _SBERT_ATTEMPTED
     if not _SBERT_ATTEMPTED:
         _SBERT_ATTEMPTED = True
+
+        # Check if user explicitly enabled low-memory mode for 512MB RAM tier
+        if os.environ.get("LOW_MEMORY_MODE", "false").lower() == "true":
+            print("[SBERT] LOW_MEMORY_MODE is enabled. Using lightweight semantic vector fallback.")
+            _SBERT_MODEL = None
+            return None
+
         try:
+            import gc
+            try:
+                import torch
+                torch.set_num_threads(1)
+                if hasattr(torch, "set_num_interop_threads"):
+                    torch.set_num_interop_threads(1)
+            except Exception:
+                pass
+
             from sentence_transformers import SentenceTransformer
             config_path = os.path.join(FINE_TUNED_MODEL_PATH, "config.json")
             if os.path.exists(FINE_TUNED_MODEL_PATH) and os.path.exists(config_path):
@@ -42,9 +58,12 @@ def get_sbert_model():
                 print(f"[SBERT] Loading base SentenceTransformer model: '{MODEL_NAME}'...")
                 _SBERT_MODEL = SentenceTransformer(MODEL_NAME)
                 print("[SBERT] Base SentenceTransformer model loaded successfully.")
+
+            gc.collect()
         except Exception as e:
-            print(f"[SBERT] SentenceTransformer unavailable ({e}). Using semantic vector fallback.")
+            print(f"[SBERT] SentenceTransformer unavailable / Memory constrained ({e}). Using semantic vector fallback.")
             _SBERT_MODEL = None
+            gc.collect()
     return _SBERT_MODEL
 
 
