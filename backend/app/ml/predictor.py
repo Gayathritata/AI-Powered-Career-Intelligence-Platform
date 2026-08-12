@@ -89,7 +89,10 @@ class CareerPredictor:
         return cls._instance
 
     def load_artifacts(self):
-        """Load model, vectorizer, and label encoder from disk."""
+        """Load model, vectorizer, and label encoder from disk (idempotent)."""
+        if self.is_loaded:
+            return True
+
         if os.path.exists(VECTORIZER_PATH) and os.path.exists(ENCODER_PATH):
             try:
                 self.vectorizer = joblib.load(VECTORIZER_PATH)
@@ -106,12 +109,15 @@ class CareerPredictor:
                 print("[OK] CareerPredictor model artifacts loaded successfully.")
                 import gc
                 gc.collect()
+                return True
             except Exception as e:
                 print(f"[ERROR] Failed to load model artifacts: {e}")
                 self.is_loaded = False
+                return False
         else:
             print("[WARN] Model artifacts not found. Run training scripts first.")
             self.is_loaded = False
+            return False
 
     def get_ensemble_probabilities(self, text: str) -> Dict[str, float]:
         """Obtain combined classification probabilities across available classifiers."""

@@ -95,6 +95,9 @@ def predict_career(payload: PredictCareerRequest):
     )
 
 
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
+
+
 @router.post(
     "/upload-resume",
     response_model=PredictCareerResponse,
@@ -106,10 +109,25 @@ async def upload_and_predict_resume(
     top_n: Optional[int] = Form(default=5)
 ):
     """
-    Accepts PDF, DOCX, or TXT file upload.
+    Accepts PDF, DOCX, or TXT file upload (max 5 MB).
     Extracts text, identifies Named Entities (Skills, Roles, Education),
-    and runs Logistic Regression inference to return predictions.
+    and runs multi-model ensemble inference to return predictions.
     """
+    filename = file.filename or "resume.txt"
+    ext = os.path.splitext(filename)[1].lower()
+    allowed_extensions = {".pdf", ".docx", ".doc", ".txt", ""}
+    if ext not in allowed_extensions:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Unsupported file type '{ext}'. Supported formats: PDF, DOCX, TXT.",
+        )
+
+    if file.size and file.size > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="File size exceeds the 5 MB limit.",
+        )
+
     contents = await file.read()
     if not contents:
         raise HTTPException(
@@ -117,7 +135,18 @@ async def upload_and_predict_resume(
             detail="Uploaded file is empty.",
         )
 
-    extracted_text = extract_text_from_bytes(contents, file.filename or "resume.txt")
+    if len(contents) > MAX_FILE_SIZE:
+        del contents
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="File size exceeds the 5 MB limit.",
+        )
+
+    try:
+        extracted_text = extract_text_from_bytes(contents, filename)
+    finally:
+        del contents
+
     if not extracted_text.strip():
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,

@@ -18,15 +18,24 @@ try:
 except ImportError:
     docx = None
 
-try:
-    import spacy
-    try:
-        nlp = spacy.load("en_core_web_sm")
-    except Exception:
-        nlp = None
-except ImportError:
-    spacy = None
-    nlp = None
+_SPACY_NLP = None
+_SPACY_ATTEMPTED = False
+
+
+def get_spacy_nlp():
+    """Lazy singleton loader for SpaCy model disabling unneeded components to conserve RAM."""
+    global _SPACY_NLP, _SPACY_ATTEMPTED
+    if not _SPACY_ATTEMPTED:
+        _SPACY_ATTEMPTED = True
+        try:
+            import spacy
+            try:
+                _SPACY_NLP = spacy.load("en_core_web_sm", disable=["parser", "lemmatizer", "textcat"])
+            except Exception:
+                _SPACY_NLP = None
+        except ImportError:
+            _SPACY_NLP = None
+    return _SPACY_NLP
 
 
 # Core skill patterns

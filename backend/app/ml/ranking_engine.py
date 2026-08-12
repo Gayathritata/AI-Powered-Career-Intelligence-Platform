@@ -136,6 +136,16 @@ class TopKCareerRankingEngine:
 
     def __init__(self, embedder: Optional[SkillSBERTEmbedder] = None):
         self.embedder = embedder or SkillSBERTEmbedder()
+        self._role_req_vectors: Dict[str, np.ndarray] = {}
+
+    def _get_role_req_vector(self, role_title: str, req_skills: List[str]) -> np.ndarray:
+        """Cache static role required skills vectors on first access or init."""
+        if role_title not in self._role_req_vectors:
+            if req_skills:
+                self._role_req_vectors[role_title] = self.embedder.encode(req_skills)
+            else:
+                self._role_req_vectors[role_title] = np.zeros((0, 384), dtype=np.float32)
+        return self._role_req_vectors[role_title]
 
     def calculate_hybrid_score(
         self,
@@ -167,6 +177,9 @@ class TopKCareerRankingEngine:
         if not user_skills and user_text:
             user_skills = extract_skills_from_text(user_text)
 
+        # Encode user skills EXACTLY ONCE for all 50+ role comparisons
+        user_vecs = self.embedder.encode(user_skills) if user_skills else None
+
         ranked_results = []
 
         # Category mapping helper to bridge dataset labels to role titles
@@ -187,8 +200,16 @@ class TopKCareerRankingEngine:
                     if cat_label in cat_map and role_title in cat_map[cat_label]:
                         prob = max(prob, cat_prob)
 
-            # SBERT Skill Alignment evaluation
-            alignment = self.embedder.evaluate_skill_semantic_alignment(user_skills, req_skills)
+            # Retrieve pre-cached required skill embedding vectors for role
+            req_vecs = self._get_role_req_vector(role_title, req_skills)
+
+            # Evaluate alignment using pre-encoded user & role vectors (0 extra model inference calls)
+            alignment = self.embedder.evaluate_skill_semantic_alignment(
+                user_skills=user_skills,
+                target_required_skills=req_skills,
+                user_vecs=user_vecs,
+                req_vecs=req_vecs
+            )
             sbert_sim = alignment["semantic_alignment_score"] / 100.0
             coverage = alignment["coverage_ratio"] / 100.0
 
@@ -216,3 +237,4 @@ class TopKCareerRankingEngine:
             top_k_results.append(item)
 
         return top_k_results
+

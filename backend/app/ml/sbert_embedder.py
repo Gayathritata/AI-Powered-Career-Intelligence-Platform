@@ -9,7 +9,7 @@ enabling fine-grained semantic similarity matching.
 import os
 import logging
 import numpy as np
-from typing import List, Union, Dict
+from typing import List, Union, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -27,11 +27,10 @@ def get_sbert_model():
     if not _SBERT_ATTEMPTED:
         _SBERT_ATTEMPTED = True
 
-        # Auto-enable low-memory mode on cloud hosts (Render 512MB RAM tier)
-        is_render = "RENDER" in os.environ or "PORT" in os.environ
-        low_mem_env = os.environ.get("LOW_MEMORY_MODE", "true" if is_render else "false").lower()
+        # Only disable SBERT if LOW_MEMORY_MODE is explicitly set to true
+        low_mem_env = os.environ.get("LOW_MEMORY_MODE", "false").lower()
         if low_mem_env in ("true", "1", "yes"):
-            print("[SBERT] Cloud LOW_MEMORY_MODE active (~90MB RAM). Using lightweight 384D semantic vectorizer.")
+            print("[SBERT] LOW_MEMORY_MODE explicitly active (~90MB RAM). Using lightweight semantic vectorizer fallback.")
             _SBERT_MODEL = None
             return None
 
@@ -61,6 +60,10 @@ def get_sbert_model():
                 _SBERT_MODEL = SentenceTransformer(MODEL_NAME)
                 print("[SBERT] Base SentenceTransformer model loaded successfully.")
 
+            # Set model to eval mode if applicable
+            if hasattr(_SBERT_MODEL, "eval"):
+                _SBERT_MODEL.eval()
+
             gc.collect()
         except Exception as e:
             print(f"[SBERT] SentenceTransformer unavailable / Memory constrained ({e}). Using semantic vector fallback.")
@@ -85,8 +88,15 @@ class SkillSBERTEmbedder:
             return np.zeros((0, 384), dtype=np.float32)
 
         if model is not None:
-            embeddings = model.encode(texts, convert_to_numpy=True, show_progress_bar=False)
-            return embeddings
+            try:
+                import torch
+                with torch.no_grad():
+                    embeddings = model.encode(texts, convert_to_numpy=True, show_progress_bar=False)
+                return np.asarray(embeddings, dtype=np.float32)
+            except Exception as err:
+                logger.warning(f"SBERT encoding exception: {err}. Using fallback vectorizer.")
+                embeddings = model.encode(texts, convert_to_numpy=True, show_progress_bar=False)
+                return np.asarray(embeddings, dtype=np.float32)
         else:
             # Fallback: Hash-based mock embeddings for testing environments without PyTorch/Transformers
             embeddings = []
@@ -100,14 +110,14 @@ class SkillSBERTEmbedder:
                 if norm > 0:
                     vec = vec / norm
                 embeddings.append(vec)
-            return np.array(embeddings)
+            return np.array(embeddings, dtype=np.float32)
 
     def compute_cosine_similarity(self, vec_a: np.ndarray, vec_b: np.ndarray) -> float:
         """Compute cosine similarity between two 1D embedding vectors."""
         if vec_a is None or vec_b is None:
             return 0.0
-        vec_a = np.asarray(vec_a).flatten()
-        vec_b = np.asarray(vec_b).flatten()
+        vec_a = np.asarray(vec_a, dtype=np.float32).flatten()
+        vec_b = np.asarray(vec_b, dtype=np.float32).flatten()
 
         norm_a = np.linalg.norm(vec_a)
         norm_b = np.linalg.norm(vec_b)
@@ -119,13 +129,31 @@ class SkillSBERTEmbedder:
         return max(0.0, min(1.0, sim))
 
     def evaluate_skill_semantic_alignment(
-        self, user_skills: List[str], target_required_skills: List[str]
+        self,
+        user_skills: List[str],
+        target_required_skills: List[str],
+        user_vecs: Optional[np.ndarray] = None,
+        req_vecs: Optional[np.ndarray] = None
     ) -> Dict[str, Union[float, List[str]]]:
         """
         Computes semantic alignment score between user skills and target required skills
         using Sentence-BERT embeddings. Maps each required skill to closest user skill.
+        Can receive pre-computed user_vecs and req_vecs to avoid re-encoding.
         """
         if not user_skills or not target_required_skills:
+            return {
+                "semantic_alignment_score": 0.0,
+                "matched_skills": [],
+                "missing_skills": target_required_skills or [],
+                "coverage_ratio": 0.0
+            }
+
+        if user_vecs is None:
+            user_vecs = self.encode(user_skills)
+        if req_vecs is None:
+            req_vecs = self.encode(target_required_skills)
+
+        if len(user_vecs) == 0 or len(req_vecs) == 0:
             return {
                 "semantic_alignment_score": 0.0,
                 "matched_skills": [],
@@ -133,28 +161,25 @@ class SkillSBERTEmbedder:
                 "coverage_ratio": 0.0
             }
 
-        user_vecs = self.encode(user_skills)
-        req_vecs = self.encode(target_required_skills)
+        # Vectorized cosine similarity computation
+        u_norms = np.linalg.norm(user_vecs, axis=1, keepdims=True)
+        u_norms[u_norms == 0] = 1e-9
+        u_normalized = user_vecs / u_norms
+
+        r_norms = np.linalg.norm(req_vecs, axis=1, keepdims=True)
+        r_norms[r_norms == 0] = 1e-9
+        r_normalized = req_vecs / r_norms
+
+        # Matrix multiplication: (num_req, 384) x (384, num_user) -> (num_req, num_user)
+        sim_matrix = np.clip(np.dot(r_normalized, u_normalized.T), 0.0, 1.0)
 
         matched_skills = []
         missing_skills = []
         similarity_scores = []
-
-        # Threshold for considering a skill semantically matched
         SIM_THRESHOLD = 0.55
 
         for req_idx, req_skill in enumerate(target_required_skills):
-            req_v = req_vecs[req_idx]
-            best_sim = 0.0
-            best_match = None
-
-            for u_idx, u_skill in enumerate(user_skills):
-                u_v = user_vecs[u_idx]
-                sim = self.compute_cosine_similarity(req_v, u_v)
-                if sim > best_sim:
-                    best_sim = sim
-                    best_match = u_skill
-
+            best_sim = float(np.max(sim_matrix[req_idx]))
             similarity_scores.append(best_sim)
             if best_sim >= SIM_THRESHOLD:
                 matched_skills.append(req_skill)
@@ -174,3 +199,4 @@ class SkillSBERTEmbedder:
 
 # Default instance
 embedder = SkillSBERTEmbedder()
+
