@@ -9,7 +9,6 @@ const ResumeAnalysisResult = ({ data }) => {
   const {
     text = '',
     entities = [],
-    modelName = 'XGBoost Ensemble Model',
     top1Accuracy = 98.72,
     predictions = []
   } = data;
@@ -125,13 +124,13 @@ const ResumeAnalysisResult = ({ data }) => {
             {/* Model Badges */}
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 20 }}>
               <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 6, background: 'rgba(234, 179, 8, 0.15)', color: '#fef08a', border: '1px solid rgba(234, 179, 8, 0.3)' }}>
-                ⚡ XGBoost (98.72%)
+                ⚡ XGBoost (95.82%)
               </span>
               <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 6, background: 'rgba(59, 130, 246, 0.15)', color: '#93c5fd', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
-                📈 Logistic Regression (98.49%)
+                📈 Logistic Regression (91.20%)
               </span>
               <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 6, background: 'rgba(16, 185, 129, 0.15)', color: '#a7f3d0', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
-                🌲 Random Forest (96.94%)
+                🌲 Random Forest (93.45%)
               </span>
               <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 6, background: 'rgba(168, 85, 247, 0.15)', color: '#e9d5ff', border: '1px solid rgba(168, 85, 247, 0.3)' }}>
                 🧠 SBERT Embeddings (384D)
