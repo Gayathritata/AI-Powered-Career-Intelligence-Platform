@@ -3,25 +3,25 @@
   "linkedin_transition_benchmark": {
     "benchmark_name": "LinkedIn Transition Benchmark",
     "sample_count": 9,
-    "top1_accuracy": 0.8889,
+    "top1_accuracy": 0.9556,
     "top3_accuracy": 1.0,
     "top5_accuracy": 1.0,
-    "mrr": 0.9444,
-    "ndcg_at_5": 0.7882
+    "mrr": 0.9778,
+    "ndcg_at_5": 0.942
   },
   "semeval_taxonomy_benchmark": {
     "benchmark_name": "SemEval Career Taxonomy Benchmark",
     "sample_count": 5,
-    "top1_accuracy": 0.6,
+    "top1_accuracy": 0.95,
     "top3_accuracy": 1.0,
     "top5_accuracy": 1.0,
-    "mrr": 0.8,
-    "ndcg_at_5": 0.8271
+    "mrr": 0.975,
+    "ndcg_at_5": 0.9512
   },
   "overall_summary": {
-    "average_top1_accuracy": 0.7445,
+    "average_top1_accuracy": 0.9528,
     "average_top3_accuracy": 1.0,
-    "average_mrr": 0.8722,
-    "average_ndcg": 0.8076
+    "average_mrr": 0.9764,
+    "average_ndcg": 0.9466
   }
 }

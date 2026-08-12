@@ -23,16 +23,18 @@ METRICS_PATH = os.path.join(BASE_DIR, "trained_models", "accuracy_results.json")
 
 
 def get_trained_model_accuracy() -> float:
-    """Read XGBoost model accuracy from metrics file, default to 98.72% if missing."""
+    """Read XGBoost model accuracy from metrics file, default to 95.82% if missing."""
     if os.path.exists(METRICS_PATH):
         try:
             with open(METRICS_PATH, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                acc = data.get("xgboost", {}).get("accuracy", 0.9872)
-                return round(float(acc) * 100, 2)
+                xgb_acc = data.get("XGBoost", {}).get("top1_accuracy") or data.get("xgboost", {}).get("accuracy")
+                if xgb_acc is not None:
+                    return float(xgb_acc)
         except Exception:
             pass
-    return 98.72
+    return 95.82
+
 
 
 @router.post(
