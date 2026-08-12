@@ -27,9 +27,11 @@ def get_sbert_model():
     if not _SBERT_ATTEMPTED:
         _SBERT_ATTEMPTED = True
 
-        # Check if user explicitly enabled low-memory mode for 512MB RAM tier
-        if os.environ.get("LOW_MEMORY_MODE", "false").lower() == "true":
-            print("[SBERT] LOW_MEMORY_MODE is enabled. Using lightweight semantic vector fallback.")
+        # Auto-enable low-memory mode on cloud hosts (Render 512MB RAM tier)
+        is_render = "RENDER" in os.environ or "PORT" in os.environ
+        low_mem_env = os.environ.get("LOW_MEMORY_MODE", "true" if is_render else "false").lower()
+        if low_mem_env in ("true", "1", "yes"):
+            print("[SBERT] Cloud LOW_MEMORY_MODE active (~90MB RAM). Using lightweight 384D semantic vectorizer.")
             _SBERT_MODEL = None
             return None
 
