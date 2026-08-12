@@ -4,14 +4,19 @@
 import axios from 'axios';
 
 const getBaseUrl = () => {
-  if (process.env.REACT_APP_API_URL) {
-    return process.env.REACT_APP_API_URL.replace(/\/+$/, '');
+  let url = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.trim() : '';
+  if (!url) {
+    const hostname = typeof window !== 'undefined' && window.location.hostname ? window.location.hostname : '127.0.0.1';
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return `http://${hostname}:8000/api/v1`;
+    }
+    return 'https://ai-powered-career-intelligence-platform-teik.onrender.com/api/v1';
   }
-  const hostname = typeof window !== 'undefined' && window.location.hostname ? window.location.hostname : '127.0.0.1';
-  if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    return `http://${hostname}:8000/api/v1`;
+  url = url.replace(/\/+$/, '');
+  if (!url.endsWith('/api/v1')) {
+    url = `${url}/api/v1`;
   }
-  return 'https://ai-powered-career-intelligence-platform-teik.onrender.com/api/v1';
+  return url;
 };
 
 const api = axios.create({
