@@ -26,15 +26,21 @@ async def lifespan(app: FastAPI):
         print(f"[WARN] Database not reachable on startup: {e}")
         print("       Start the server anyway; DB errors will surface on first request.")
 
-    # Pre-warm ML Predictor artifacts and SBERT embedder so API requests respond instantly
-    try:
-        from app.ml.predictor import CareerPredictor
-        predictor = CareerPredictor.get_instance()
-        if not predictor.is_loaded:
-            predictor.load_artifacts()
-        print("[OK] ML CareerPredictor pre-warmed on startup.")
-    except Exception as err:
-        print(f"[WARN] Could not pre-warm ML predictor: {err}")
+    # Pre-warm ML Predictor artifacts asynchronously in background thread so Uvicorn binds to $PORT instantly
+    import asyncio
+
+    def _prewarm_ml():
+        try:
+            from app.ml.predictor import CareerPredictor
+            predictor = CareerPredictor.get_instance()
+            if not predictor.is_loaded:
+                predictor.load_artifacts()
+            print("[OK] ML CareerPredictor pre-warmed in background.")
+        except Exception as err:
+            print(f"[WARN] Could not pre-warm ML predictor: {err}")
+
+    loop = asyncio.get_running_loop()
+    loop.run_in_executor(None, _prewarm_ml)
 
     yield
     # Shutdown

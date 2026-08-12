@@ -19,9 +19,12 @@ class Settings(BaseSettings):
     DB_USER: str = "root"
     DB_PASSWORD: str = "root"
     DB_NAME: str = "careercast"
+    DB_URL: str = ""
 
     @property
     def DATABASE_URL(self) -> str:
+        if self.DB_URL:
+            return self.DB_URL
         return (
             f"mysql+pymysql://{self.DB_USER}:{self.DB_PASSWORD}"
             f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
