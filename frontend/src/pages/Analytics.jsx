@@ -122,7 +122,7 @@ const Analytics = () => {
           )}
         </div>
 
-        {/* Panel 1: Model Comparison - Macro F1-Score */}
+        {/* Panel 1: Model Comparison - Accuracy */}
         <div className="glass-card fade-in-up" style={{
           padding: 28,
           marginBottom: 28,
@@ -136,119 +136,223 @@ const Analytics = () => {
             marginBottom: 24
           }}>
             <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
-              Model Comparison - Macro F1-Score
+              Model Comparison - Accuracy
             </h2>
-            <div style={{ display: 'flex', gap: 8, fontSize: 14, color: 'var(--text-muted)' }}>
-              <span>✏️</span> <span>⤢</span> <span>⋮</span>
-            </div>
+           
           </div>
 
-          {/* F1-Score Bar Chart Container */}
-          <div style={{ position: 'relative', height: 260, width: '100%' }}>
-            {/* Grid Y-Axis Lines */}
-            {[1.0, 0.8, 0.6, 0.4, 0.2, 0].map((val) => (
-              <div key={val} style={{
-                position: 'absolute',
-                top: `${(1.0 - val) * 200}px`,
-                left: 45,
-                right: 0,
-                display: 'flex',
-                alignItems: 'center',
-                borderTop: val === 0 ? '1px solid rgba(255,255,255,0.3)' : '1px dashed rgba(255,255,255,0.08)',
-                height: 0
-              }}>
-                <span style={{
+          {/* Main Layout: 3 Graphs in 3 Colors + Side Accuracy Box */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: 24,
+            alignItems: 'center'
+          }}>
+            {/* 3 Bar Graphs Container */}
+            <div style={{ position: 'relative', height: 260, width: '100%' }}>
+              {/* Grid Y-Axis Lines */}
+              {[1.0, 0.8, 0.6, 0.4, 0.2, 0].map((val) => (
+                <div key={val} style={{
                   position: 'absolute',
-                  left: -40,
-                  fontSize: 12,
-                  color: 'var(--text-muted)',
-                  fontWeight: 600
-                }}>
-                  {val.toFixed(1)}
-                </span>
-              </div>
-            ))}
-
-            {/* Bars Group */}
-            <div style={{
-              position: 'absolute',
-              top: 0,
-              bottom: 40,
-              left: 60,
-              right: 20,
-              display: 'flex',
-              alignItems: 'flex-end',
-              justifyContent: 'space-around',
-              paddingLeft: 40,
-              paddingRight: 40
-            }}>
-              {/* Bar 1: Logistic Regression */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 160 }}>
-                <span style={{ fontSize: 13, fontWeight: 700, marginBottom: 8, color: '#94a3b8' }}>0.65</span>
-                <div style={{
-                  width: '100%',
-                  height: `${0.65 * 200}px`,
-                  background: 'linear-gradient(180deg, rgba(147, 197, 253, 0.5) 0%, rgba(147, 197, 253, 0.25) 100%)',
-                  borderRadius: '6px 6px 0 0',
-                  border: '1px solid rgba(147, 197, 253, 0.6)',
-                  transition: 'all 0.3s ease'
-                }} />
-                <span style={{ marginTop: 12, fontSize: 14, fontWeight: 700, color: 'var(--text-secondary)' }}>
-                  Logistic Regression
-                </span>
-              </div>
-
-              {/* Bar 2: Random Forest */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 160 }}>
-                <span style={{ fontSize: 13, fontWeight: 700, marginBottom: 8, color: '#94a3b8' }}>0.75</span>
-                <div style={{
-                  width: '100%',
-                  height: `${0.75 * 200}px`,
-                  background: 'linear-gradient(180deg, rgba(147, 197, 253, 0.6) 0%, rgba(147, 197, 253, 0.3) 100%)',
-                  borderRadius: '6px 6px 0 0',
-                  border: '1px solid rgba(147, 197, 253, 0.7)',
-                  transition: 'all 0.3s ease'
-                }} />
-                <span style={{ marginTop: 12, fontSize: 14, fontWeight: 700, color: 'var(--text-secondary)' }}>
-                  Random Forest
-                </span>
-              </div>
-
-              {/* Bar 3: XGBoost (Highlighted) */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 160, position: 'relative' }}>
-                {/* Golden Badge */}
-                <div style={{
-                  position: 'absolute',
-                  top: -38,
-                  background: 'rgba(234, 179, 8, 0.2)',
-                  border: '1px solid #eab308',
-                  borderRadius: 20,
-                  padding: '3px 10px',
-                  fontSize: 11,
-                  fontWeight: 700,
-                  color: '#fef08a',
+                  top: `${(1.0 - val) * 200}px`,
+                  left: 45,
+                  right: 0,
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 4,
-                  whiteSpace: 'nowrap',
-                  boxShadow: '0 0 12px rgba(234, 179, 8, 0.4)'
+                  borderTop: val === 0 ? '1px solid rgba(255,255,255,0.3)' : '1px dashed rgba(255,255,255,0.08)',
+                  height: 0
                 }}>
-                  <span>✔</span> Threshold Met
+                  <span style={{
+                    position: 'absolute',
+                    left: -40,
+                    fontSize: 12,
+                    color: 'var(--text-muted)',
+                    fontWeight: 600
+                  }}>
+                    {val.toFixed(1)}
+                  </span>
+                </div>
+              ))}
+
+              {/* Bars Group */}
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                bottom: 40,
+                left: 60,
+                right: 20,
+                display: 'flex',
+                alignItems: 'flex-end',
+                justifyContent: 'space-around',
+                paddingLeft: 10,
+                paddingRight: 10
+              }}>
+                {/* Graph 1: Logistic Regression (Cyan Theme) */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 120 }}>
+                  <div style={{
+                    width: '100%',
+                    height: `${0.912 * 200}px`,
+                    background: 'linear-gradient(180deg, rgba(56, 189, 248, 0.8) 0%, rgba(2, 132, 199, 0.35) 100%)',
+                    borderRadius: '6px 6px 0 0',
+                    border: '1px solid #38bdf8',
+                    boxShadow: '0 0 15px rgba(56, 189, 248, 0.35)',
+                    transition: 'all 0.3s ease'
+                  }} />
+                  <span style={{ marginTop: 12, fontSize: 13, fontWeight: 700, color: '#38bdf8', textAlign: 'center' }}>
+                    Logistic Regression
+                  </span>
                 </div>
 
-                <span style={{ fontSize: 13, fontWeight: 800, marginBottom: 8, color: '#fef08a' }}>0.82</span>
+                {/* Graph 2: Random Forest (Purple Theme) */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 120 }}>
+                  <div style={{
+                    width: '100%',
+                    height: `${0.9345 * 200}px`,
+                    background: 'linear-gradient(180deg, rgba(192, 132, 252, 0.8) 0%, rgba(126, 34, 206, 0.35) 100%)',
+                    borderRadius: '6px 6px 0 0',
+                    border: '1px solid #c084fc',
+                    boxShadow: '0 0 15px rgba(192, 132, 252, 0.35)',
+                    transition: 'all 0.3s ease'
+                  }} />
+                  <span style={{ marginTop: 12, fontSize: 13, fontWeight: 700, color: '#c084fc', textAlign: 'center' }}>
+                    Random Forest
+                  </span>
+                </div>
+
+                {/* Graph 3: XGBoost (Golden Amber Theme) */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 120, position: 'relative' }}>
+                  {/* Golden Badge */}
+                  <div style={{
+                    position: 'absolute',
+                    top: -38,
+                    background: 'rgba(234, 179, 8, 0.2)',
+                    border: '1px solid #eab308',
+                    borderRadius: 20,
+                    padding: '3px 10px',
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: '#fef08a',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 4,
+                    whiteSpace: 'nowrap',
+                    boxShadow: '0 0 12px rgba(234, 179, 8, 0.4)'
+                  }}>
+                    <span>✔</span> Threshold Met
+                  </div>
+
+                  <div style={{
+                    width: '100%',
+                    height: `${0.9582 * 200}px`,
+                    background: 'linear-gradient(180deg, rgba(234, 179, 8, 0.8) 0%, rgba(180, 83, 9, 0.4) 100%)',
+                    borderRadius: '6px 6px 0 0',
+                    border: '1px solid #eab308',
+                    boxShadow: '0 0 25px rgba(234, 179, 8, 0.35)',
+                    transition: 'all 0.3s ease'
+                  }} />
+                  <span style={{ marginTop: 12, fontSize: 13, fontWeight: 800, color: '#fef08a', textAlign: 'center' }}>
+                    XGBoost
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Side Box: Accuracy Values */}
+            <div style={{
+              background: 'rgba(15, 23, 42, 0.65)',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              borderRadius: 'var(--radius-md)',
+              padding: 16,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 12
+            }}>
+              <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 2 }}>
+                🎯 Accuracy Values
+              </div>
+
+              {/* Value Box 1: Logistic Regression */}
+              <div style={{
+                background: 'rgba(56, 189, 248, 0.1)',
+                border: '1px solid rgba(56, 189, 248, 0.3)',
+                borderRadius: 8,
+                padding: '10px 14px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#38bdf8' }}>Logistic Regression</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Validation Accuracy</div>
+                </div>
                 <div style={{
-                  width: '100%',
-                  height: `${0.82 * 200}px`,
-                  background: 'linear-gradient(180deg, rgba(234, 179, 8, 0.65) 0%, rgba(180, 83, 9, 0.4) 100%)',
-                  borderRadius: '6px 6px 0 0',
-                  border: '1px solid #eab308',
-                  boxShadow: '0 0 25px rgba(234, 179, 8, 0.35)',
-                  transition: 'all 0.3s ease'
-                }} />
-                <span style={{ marginTop: 12, fontSize: 14, fontWeight: 800, color: '#fef08a' }}>
-                  XGBoost
-                </span>
+                  fontSize: 16,
+                  fontWeight: 900,
+                  color: '#38bdf8',
+                  background: 'rgba(56, 189, 248, 0.18)',
+                  padding: '4px 10px',
+                  borderRadius: 6,
+                  border: '1px solid rgba(56, 189, 248, 0.4)'
+                }}>
+                  91.20%
+                </div>
+              </div>
+
+              {/* Value Box 2: Random Forest */}
+              <div style={{
+                background: 'rgba(192, 132, 252, 0.1)',
+                border: '1px solid rgba(192, 132, 252, 0.3)',
+                borderRadius: 8,
+                padding: '10px 14px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#c084fc' }}>Random Forest</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Validation Accuracy</div>
+                </div>
+                <div style={{
+                  fontSize: 16,
+                  fontWeight: 900,
+                  color: '#c084fc',
+                  background: 'rgba(192, 132, 252, 0.18)',
+                  padding: '4px 10px',
+                  borderRadius: 6,
+                  border: '1px solid rgba(192, 132, 252, 0.4)'
+                }}>
+                  93.45%
+                </div>
+              </div>
+
+              {/* Value Box 3: XGBoost */}
+              <div style={{
+                background: 'rgba(234, 179, 8, 0.12)',
+                border: '1px solid rgba(234, 179, 8, 0.4)',
+                borderRadius: 8,
+                padding: '10px 14px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                boxShadow: '0 0 12px rgba(234, 179, 8, 0.15)'
+              }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#fef08a', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    XGBoost <span style={{ fontSize: 9, background: '#eab308', color: '#000', padding: '1px 5px', borderRadius: 4, fontWeight: 800 }}>BEST</span>
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Validation Accuracy</div>
+                </div>
+                <div style={{
+                  fontSize: 16,
+                  fontWeight: 900,
+                  color: '#fef08a',
+                  background: 'rgba(234, 179, 8, 0.22)',
+                  padding: '4px 10px',
+                  borderRadius: 6,
+                  border: '1px solid #eab308'
+                }}>
+                  95.82%
+                </div>
               </div>
             </div>
           </div>
@@ -276,9 +380,7 @@ const Analytics = () => {
               <h3 style={{ fontSize: 17, fontWeight: 800, margin: 0 }}>
                 Top-5 Career Recommendations
               </h3>
-              <div style={{ display: 'flex', gap: 8, fontSize: 13, color: 'var(--text-muted)' }}>
-                <span>⚙️</span> <span>⋮</span>
-              </div>
+              
             </div>
 
             {/* Table Headers */}
@@ -381,9 +483,7 @@ const Analytics = () => {
               <h3 style={{ fontSize: 17, fontWeight: 800, margin: 0 }}>
                 t-SNE Visualization: Skill Embeddings (SBERT)
               </h3>
-              <div style={{ display: 'flex', gap: 8, fontSize: 13, color: 'var(--text-muted)' }}>
-                <span>✏️</span> <span>⋮</span>
-              </div>
+              
             </div>
 
             {/* SVG Scatter Plot Canvas */}
