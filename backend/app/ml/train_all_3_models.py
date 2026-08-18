@@ -10,6 +10,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from xgboost import XGBClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from app.ml.mlflow_tracker import mlflow_tracker
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 DATASET_PATH = os.path.join(BASE_DIR, "datasets", "resume", "it_resumes_cleaned.csv")
@@ -118,12 +119,18 @@ def train_and_eval_all_models():
         "f1_score": round(xgb_f1, 2)
     }
 
+    # Log metrics & artifacts to MLflow
+    mlflow_tracker.log_model_run("LogisticRegression", lr, {"C": 5.0, "max_iter": 1000}, results["Logistic Regression"])
+    mlflow_tracker.log_model_run("RandomForest", rf, {"n_estimators": 100, "max_depth": 25}, results["Random Forest"])
+    mlflow_tracker.log_model_run("XGBoost", xgb, {"n_estimators": 150, "max_depth": 7, "learning_rate": 0.1}, results["XGBoost"], register_as_best=True)
+
     # Serialize models & vectorizers
     joblib.dump(lr, os.path.join(MODELS_DIR, "logistic_regression_model.joblib"))
     joblib.dump(rf, os.path.join(MODELS_DIR, "rf_model.joblib"))
     joblib.dump(xgb, os.path.join(MODELS_DIR, "xgb_model.joblib"))
     joblib.dump(tfidf, os.path.join(MODELS_DIR, "tfidf_vectorizer.joblib"))
     joblib.dump(label_encoder, os.path.join(MODELS_DIR, "label_encoder.joblib"))
+
 
     metrics_path = os.path.join(MODELS_DIR, "accuracy_results.json")
     with open(metrics_path, "w", encoding="utf-8") as f:

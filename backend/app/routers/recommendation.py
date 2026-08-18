@@ -12,9 +12,16 @@ import json
 import os
 from typing import Optional
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form, status
-from app.schemas.recommendation import PredictCareerRequest, PredictCareerResponse, EntityItem
+from app.schemas.recommendation import (
+    PredictCareerRequest,
+    PredictCareerResponse,
+    EntityItem,
+    SkillGapRequest,
+    SkillGapReportResponse,
+)
 from app.ml.predictor import CareerPredictor
 from app.parser.resume_parser import extract_text_from_bytes, extract_ner_entities
+from app.services.skill_gap_service import gap_analyzer
 
 router = APIRouter(prefix="/recommendation", tags=["Career Recommendation"])
 
@@ -191,3 +198,30 @@ async def upload_and_predict_resume(
         top_career=top_career,
         confidence=top_confidence,
     )
+
+
+@router.post(
+    "/gap-report",
+    response_model=SkillGapReportResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Generate comprehensive Skill Gap Analysis & Actionable Recommendations Report",
+)
+def generate_skill_gap_report(payload: SkillGapRequest):
+    """
+    Analyzes user resume text or explicit skill list against a targeted career path.
+    Categorizes missing skills into High/Medium/Low priority gaps and generates actionable learning suggestions.
+    """
+    if not (payload.text and payload.text.strip()) and not payload.user_skills:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Either resume text or a list of user skills must be provided.",
+        )
+
+    gap_data = gap_analyzer.analyze_gap(
+        raw_text=payload.text or "",
+        user_skills=payload.user_skills,
+        target_career=payload.target_career
+    )
+
+    return SkillGapReportResponse(**gap_data)
+

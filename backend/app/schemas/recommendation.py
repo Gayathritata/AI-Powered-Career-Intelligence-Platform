@@ -34,3 +34,32 @@ class PredictCareerResponse(BaseModel):
     top_career: str
     confidence: float
 
+
+class SkillGapRequest(BaseModel):
+    text: Optional[str] = Field(None, description="Raw resume text")
+    user_skills: Optional[List[str]] = Field(default_factory=list, description="Extracted or explicitly passed user skills")
+    target_career: Optional[str] = Field(None, description="Target career role title to analyze gap against")
+
+
+class SkillGapItem(BaseModel):
+    skill_name: str
+    priority: str = Field(..., description="High, Medium, or Low priority")
+    difficulty: str
+    estimated_hours: int
+    recommended_resources: List[str]
+    suggested_project: str
+
+
+class SkillGapReportResponse(BaseModel):
+    target_career: str
+    match_score: float = Field(..., description="Composite semantic match score percentage (0-100)")
+    coverage_ratio: float = Field(..., description="Percentage of required skills met")
+    matched_skills: List[str]
+    missing_skills: List[str]
+    required_skills: List[str]
+    skill_priorities: List[SkillGapItem]
+    actionable_recommendations: List[str]
+    estimated_time_to_bridge: str
+    total_estimated_hours: int
+
+

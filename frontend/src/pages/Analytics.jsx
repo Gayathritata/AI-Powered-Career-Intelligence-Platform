@@ -553,9 +553,7 @@ const Analytics = () => {
                 flexDirection: 'column',
                 overflow: 'hidden'
               }}>
-                <button style={{ background: 'none', border: 'none', color: '#fff', padding: '4px 8px', cursor: 'pointer' }}>+</button>
-                <div style={{ height: 1, background: 'rgba(255,255,255,0.1)' }} />
-                <button style={{ background: 'none', border: 'none', color: '#fff', padding: '4px 8px', cursor: 'pointer' }}>−</button>
+                
               </div>
             </div>
           </div>
