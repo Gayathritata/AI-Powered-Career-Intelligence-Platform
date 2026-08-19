@@ -94,6 +94,25 @@ API_PREFIX = "/api/v1"
 
 app.include_router(auth.router, prefix=API_PREFIX)
 app.include_router(recommendation.router, prefix=API_PREFIX)
+app.include_router(recommendation.router)
+
+# Top-level direct endpoint aliases to match Swagger UI specification (/predict, /recommend, /gap-report, /mlflow/models)
+@app.post("/predict", tags=["Career Recommendation"], summary="Predict Job Role")
+def root_predict_career(payload: recommendation.PredictCareerRequest):
+    return recommendation.predict_career(payload)
+
+@app.post("/recommend", tags=["Career Recommendation"], summary="Recommend Learning Paths")
+def root_recommend_learning_paths(payload: recommendation.SkillGapRequest):
+    return recommendation.recommend_learning_paths(payload)
+
+@app.post("/gap-report", tags=["Career Recommendation"], summary="Generate Skill Gap Report")
+def root_generate_skill_gap_report(payload: recommendation.SkillGapRequest):
+    return recommendation.generate_skill_gap_report(payload)
+
+@app.get("/mlflow/models", tags=["MLflow Model Registry"], summary="Get MLflow Model Registry")
+def root_get_mlflow_models():
+    return recommendation.get_mlflow_registered_models()
+
 
 
 # ── Health check ──────────────────────────────────────────────────────────────

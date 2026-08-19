@@ -20,7 +20,9 @@ from app.ml.sbert_embedder import SkillSBERTEmbedder
 CAREER_REQUIRED_SKILLS = {
     # ── AI & Data ─────────────────────────────────────────────────────────────
     "AI Engineer": ["Python", "Machine Learning", "Deep Learning", "PyTorch", "TensorFlow", "NLP", "Computer Vision", "LLMs"],
+    "ML Engineer": ["Python", "SQL", "PyTorch", "Kubernetes", "MLOps", "AWS SageMaker"],
     "Machine Learning Engineer": ["Python", "Scikit-Learn", "PyTorch", "TensorFlow", "MLOps", "Docker", "Algorithms", "Feature Engineering"],
+
     "Deep Learning Engineer": ["Python", "PyTorch", "TensorFlow", "Neural Networks", "Computer Vision", "NLP", "CUDA", "Keras"],
     "Generative AI Engineer": ["Python", "LangChain", "LLMs", "OpenAI", "Transformers", "PyTorch", "Prompt Engineering", "Vector DBs"],
     "Data Scientist": ["Python", "R", "SQL", "Pandas", "NumPy", "Scikit-Learn", "Statistics", "Machine Learning", "Data Analysis"],

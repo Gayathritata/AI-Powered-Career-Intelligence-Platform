@@ -48,7 +48,7 @@ def get_trained_model_accuracy() -> float:
     "/predict",
     response_model=PredictCareerResponse,
     status_code=status.HTTP_200_OK,
-    summary="Predict top career paths using Logistic Regression model and parse SpaCy NER entities",
+    summary="Predict Job Role",
 )
 def predict_career(payload: PredictCareerRequest):
     """
@@ -201,10 +201,36 @@ async def upload_and_predict_resume(
 
 
 @router.post(
+    "/recommend",
+    status_code=status.HTTP_200_OK,
+    summary="Recommend Learning Paths",
+)
+def recommend_learning_paths(payload: SkillGapRequest):
+    """
+    Returns curated course recommendations and portfolio projects based on skill gaps.
+    """
+    user_skills = payload.user_skills or (["Python", "SQL", "PyTorch"] if not payload.text else None)
+    target_career = payload.target_career or "ML Engineer"
+
+    gap_data = gap_analyzer.analyze_gap(
+        raw_text=payload.text or "",
+        user_skills=user_skills,
+        target_career=target_career
+    )
+
+    return {
+        "target_career": gap_data["target_career"],
+        "match_score": gap_data["match_score"],
+        "recommended_learning_paths": gap_data["skill_priorities"],
+        "actionable_roadmap": gap_data["actionable_recommendations"]
+    }
+
+
+@router.post(
     "/gap-report",
     response_model=SkillGapReportResponse,
     status_code=status.HTTP_200_OK,
-    summary="Generate comprehensive Skill Gap Analysis & Actionable Recommendations Report",
+    summary="Generate Skill Gap Report",
 )
 def generate_skill_gap_report(payload: SkillGapRequest):
     """
@@ -212,16 +238,29 @@ def generate_skill_gap_report(payload: SkillGapRequest):
     Categorizes missing skills into High/Medium/Low priority gaps and generates actionable learning suggestions.
     """
     if not (payload.text and payload.text.strip()) and not payload.user_skills:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Either resume text or a list of user skills must be provided.",
-        )
+        payload.user_skills = ["Python", "SQL", "PyTorch"]
+        payload.target_career = "ML Engineer"
 
     gap_data = gap_analyzer.analyze_gap(
         raw_text=payload.text or "",
         user_skills=payload.user_skills,
-        target_career=payload.target_career
+        target_career=payload.target_career or "ML Engineer"
     )
 
     return SkillGapReportResponse(**gap_data)
+
+
+
+@router.get(
+    "/mlflow/models",
+    status_code=status.HTTP_200_OK,
+    summary="Get MLflow Registered Models",
+)
+def get_mlflow_registered_models():
+    """
+    Returns registered MLflow model entries, version history, status, and accuracy metrics.
+    """
+    from app.ml.mlflow_tracker import mlflow_tracker
+    return mlflow_tracker.get_registered_models()
+
 

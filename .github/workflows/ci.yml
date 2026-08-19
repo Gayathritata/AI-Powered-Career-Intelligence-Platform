@@ -28,9 +28,15 @@ jobs:
           pip install pytest pytest-cov mlflow streamlit plotly
 
       - name: Run Backend Unit Tests
+        env:
+          PYTHONPATH: backend
         run: |
-          pytest backend/app -v --ignore=backend/app/ml/evaluate_benchmarks.py || echo "Tests executed"
+          pytest backend/tests backend/app -v --ignore=backend/app/ml/evaluate_benchmarks.py
 
       - name: Run Automated ML Model Accuracy Gate (>= 90.0%)
+        env:
+          PYTHONPATH: backend
         run: |
           python backend/app/ml/accuracy_gate.py 90.0
+
+

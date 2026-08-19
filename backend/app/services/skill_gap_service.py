@@ -105,7 +105,22 @@ SKILL_METADATA: Dict[str, Dict[str, Any]] = {
         "resources": ["Kubernetes Fundamentals (Linux Foundation)", "CKA Certification Prep"],
         "project": "Deploy an Auto-Scaling Kubernetes Cluster with Helm Charts and Ingress Controller"
     },
+    "MLOps": {
+        "priority": "High",
+        "difficulty": "Intermediate-Advanced",
+        "estimated_hours": 35,
+        "resources": ["MLOps Specialization (DeepLearning.AI)", "Made With ML MLOps Guide", "MLflow Documentation"],
+        "project": "Build an Automated ML Pipeline with Model Registry, Feature Store, and CI/CD Gate"
+    },
+    "AWS SageMaker": {
+        "priority": "High",
+        "difficulty": "Intermediate-Advanced",
+        "estimated_hours": 30,
+        "resources": ["AWS SageMaker Developer Guide", "AWS Machine Learning Specialty Course"],
+        "project": "Train & Deploy a Scalable SageMaker Endpoint with Automated Model Monitoring"
+    },
     "AWS": {
+
         "priority": "High",
         "difficulty": "Intermediate-Advanced",
         "estimated_hours": 40,
