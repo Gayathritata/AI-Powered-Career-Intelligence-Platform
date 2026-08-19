@@ -2,18 +2,17 @@
 // CareerCast Analytics: Milestone 2 & Milestone 3 Dashboard with MLflow Model Registry
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import api from '../services/api';
 
-const Analytics = () => {
-  const navigate = useNavigate();
 
+const Analytics = () => {
   // Load candidate's active parsed resume predictions if available
-  const [parsedData, setParsedData] = useState(() => {
+  const [parsedData] = useState(() => {
     const saved = sessionStorage.getItem('careercast_parsed_resume') || localStorage.getItem('careercast_parsed_resume');
     return saved ? JSON.parse(saved) : null;
   });
+
 
   const [mlflowData, setMlflowData] = useState({
     registry_name: 'CareerCast_Recommender',
