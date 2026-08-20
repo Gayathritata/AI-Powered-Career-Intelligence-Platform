@@ -30,7 +30,7 @@ const Profile = () => {
               Upload your resume to see your automatically generated candidate profile here.
             </p>
             <button onClick={() => navigate('/upload')} className="btn-primary">
-              🚀 Upload Resume Now
+              Upload Resume Now
             </button>
           </div>
         </main>

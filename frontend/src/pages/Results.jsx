@@ -354,7 +354,7 @@ const Results = () => {
             {/* Navigation Actions */}
             <div style={{ display: 'flex', justifyContent: 'center', gap: 16, flexWrap: 'wrap' }}>
               <button onClick={() => navigate('/upload')} className="btn-primary" style={{ padding: '12px 24px' }}>
-                🚀 Upload Another Resume
+                Upload Another Resume
               </button>
               <button onClick={() => navigate('/analytics')} className="btn-secondary" style={{ padding: '12px 24px' }}>
                 📊 View Analytics & Model Registry
@@ -370,7 +370,7 @@ const Results = () => {
               Upload your resume first so AI can analyze your qualifications and generate predictions.
             </p>
             <button onClick={() => navigate('/upload')} className="btn-primary">
-              🚀 Upload Resume Now
+              Upload Resume Now
             </button>
           </div>
         )}

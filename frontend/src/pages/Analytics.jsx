@@ -1,5 +1,4 @@
 // pages/Analytics.jsx
-// CareerCast Analytics: Milestone 2 & Milestone 3 Dashboard with MLflow Model Registry
 
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
@@ -43,14 +42,13 @@ const Analytics = () => {
         rank: idx + 1,
         name: p.career || p.name,
         confidence: Math.round(p.confidence || p.score || 85),
-        icon: idx === 0 ? '🧠' : idx === 1 ? '🧪' : idx === 2 ? '💻' : idx === 3 ? '📈' : '🔬'
       }))
     : [
         { rank: 1, name: parsedData?.predictedCareer || 'ML Engineer', confidence: parsedData?.confidence || 94, icon: '🧠' },
-        { rank: 2, name: 'Data Scientist', confidence: 89, icon: '🧪' },
-        { rank: 3, name: 'Backend Dev', confidence: 85, icon: '💻' },
-        { rank: 4, name: 'Product Manager', confidence: 81, icon: '📈' },
-        { rank: 5, name: 'AI Researcher', confidence: 78, icon: '🔬' }
+        { rank: 2, name: 'Data Scientist', confidence: 89 },
+        { rank: 3, name: 'Backend Dev', confidence: 85 },
+        { rank: 4, name: 'Product Manager', confidence: 81 },
+        { rank: 5, name: 'AI Researcher', confidence: 78}
       ];
 
   // t-SNE Cluster dataset points
@@ -98,21 +96,6 @@ const Analytics = () => {
           gap: 16
         }}>
           <div>
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '4px 14px',
-              borderRadius: 'var(--radius-full)',
-              background: 'rgba(99,102,241,0.12)',
-              border: '1px solid rgba(99,102,241,0.25)',
-              marginBottom: 10,
-              fontSize: 12,
-              fontWeight: 600,
-              color: 'var(--color-primary-light)'
-            }}>
-              <span>📊 Milestone 3 Career Intelligence Analytics</span>
-            </div>
             <h1 style={{ fontSize: 32, fontWeight: 900, margin: 0 }}>
               CareerCast Analytics & MLflow Registry
             </h1>
@@ -146,7 +129,7 @@ const Analytics = () => {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
             <div>
               <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1, color: '#34d399', fontWeight: 800 }}>
-                🤖 MLFLOW MODEL REGISTRY
+                MLFLOW MODEL REGISTRY
               </div>
               <h2 style={{ fontSize: 22, fontWeight: 800, margin: '4px 0 0 0' }}>
                 Registry: <span style={{ color: '#60a5fa' }}>{mlflowData.registry_name}</span>
@@ -364,44 +347,46 @@ const Analytics = () => {
           </div>
         </div>
 
-        {/* Bottom Grid Panels */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: 28 }}>
-          {/* Panel 2: Top-5 Career Recommendations */}
-          <div className="glass-card fade-in-up" style={{ padding: 24, border: '1px solid rgba(99, 102, 241, 0.25)', display: 'flex', flexDirection: 'column' }}>
-            <h3 style={{ fontSize: 17, fontWeight: 800, marginBottom: 20 }}>Top-5 Career Recommendations</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 90px', padding: '8px 12px', fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', borderBottom: '1px solid rgba(255,255,255,0.08)', marginBottom: 8 }}>
-              <span>#</span>
-              <span>Name</span>
-              <span style={{ textAlign: 'right' }}>Confidence</span>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {top5Recommendations.map((item, idx) => (
-                <div key={item.name} style={{ display: 'grid', gridTemplateColumns: '40px 1fr 90px', alignItems: 'center', padding: '12px 14px', borderRadius: 'var(--radius-md)', background: idx === 0 ? 'rgba(234, 179, 8, 0.12)' : 'rgba(255, 255, 255, 0.03)', border: idx === 0 ? '1px solid rgba(234, 179, 8, 0.4)' : '1px solid rgba(255, 255, 255, 0.06)' }}>
-                  <span style={{ fontWeight: 800, fontSize: 14, color: idx === 0 ? '#fef08a' : 'var(--text-muted)' }}>{item.rank}</span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ fontSize: 18 }}>{item.icon}</span>
-                    <span style={{ fontWeight: idx === 0 ? 800 : 600, fontSize: 15, color: idx === 0 ? '#fef08a' : 'var(--text-primary)' }}>{item.name}</span>
+        {/* Bottom Grid Panels (Only rendered when resume is present) */}
+        {parsedData && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: 28 }}>
+            {/* Panel 2: Top-5 Career Recommendations */}
+            <div className="glass-card fade-in-up" style={{ padding: 24, border: '1px solid rgba(99, 102, 241, 0.25)', display: 'flex', flexDirection: 'column' }}>
+              <h3 style={{ fontSize: 17, fontWeight: 800, marginBottom: 20 }}>Top-5 Career Recommendations</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 90px', padding: '8px 12px', fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', borderBottom: '1px solid rgba(255,255,255,0.08)', marginBottom: 8 }}>
+                <span>#</span>
+                <span>Name</span>
+                <span style={{ textAlign: 'right' }}>Confidence</span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {top5Recommendations.map((item, idx) => (
+                  <div key={item.name} style={{ display: 'grid', gridTemplateColumns: '40px 1fr 90px', alignItems: 'center', padding: '12px 14px', borderRadius: 'var(--radius-md)', background: idx === 0 ? 'rgba(234, 179, 8, 0.12)' : 'rgba(255, 255, 255, 0.03)', border: idx === 0 ? '1px solid rgba(234, 179, 8, 0.4)' : '1px solid rgba(255, 255, 255, 0.06)' }}>
+                    <span style={{ fontWeight: 800, fontSize: 14, color: idx === 0 ? '#fef08a' : 'var(--text-muted)' }}>{item.rank}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <span style={{ fontSize: 18 }}>{item.icon}</span>
+                      <span style={{ fontWeight: idx === 0 ? 800 : 600, fontSize: 15, color: idx === 0 ? '#fef08a' : 'var(--text-primary)' }}>{item.name}</span>
+                    </div>
+                    <span style={{ textAlign: 'right', fontWeight: 800, fontSize: 15, color: idx === 0 ? '#fef08a' : '#38bdf8' }}>{item.confidence}%</span>
                   </div>
-                  <span style={{ textAlign: 'right', fontWeight: 800, fontSize: 15, color: idx === 0 ? '#fef08a' : '#38bdf8' }}>{item.confidence}%</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Panel 3: t-SNE Visualization */}
-          <div className="glass-card fade-in-up" style={{ padding: 24, border: '1px solid rgba(99, 102, 241, 0.25)', display: 'flex', flexDirection: 'column' }}>
-            <h3 style={{ fontSize: 17, fontWeight: 800, marginBottom: 16 }}>t-SNE Visualization: Skill Embeddings (SBERT)</h3>
-            <div style={{ position: 'relative', width: '100%', height: 260, background: 'rgba(15, 23, 42, 0.6)', borderRadius: 'var(--radius-md)', padding: 10 }}>
-              <svg width="100%" height="100%" viewBox="-35 -35 70 70" preserveAspectRatio="xMidYMid meet">
-                <line x1="-30" y1="0" x2="30" y2="0" stroke="rgba(255,255,255,0.15)" strokeWidth="0.5" />
-                <line x1="0" y1="-30" x2="0" y2="30" stroke="rgba(255,255,255,0.15)" strokeWidth="0.5" />
-                {points.map((pt, i) => (
-                  <circle key={i} cx={pt.x} cy={-pt.y} r="1.2" fill={pt.color} opacity="0.85" />
                 ))}
-              </svg>
+              </div>
+            </div>
+
+            {/* Panel 3: t-SNE Visualization */}
+            <div className="glass-card fade-in-up" style={{ padding: 24, border: '1px solid rgba(99, 102, 241, 0.25)', display: 'flex', flexDirection: 'column' }}>
+              <h3 style={{ fontSize: 17, fontWeight: 800, marginBottom: 16 }}>t-SNE Visualization: Skill Embeddings (SBERT)</h3>
+              <div style={{ position: 'relative', width: '100%', height: 260, background: 'rgba(15, 23, 42, 0.6)', borderRadius: 'var(--radius-md)', padding: 10 }}>
+                <svg width="100%" height="100%" viewBox="-35 -35 70 70" preserveAspectRatio="xMidYMid meet">
+                  <line x1="-30" y1="0" x2="30" y2="0" stroke="rgba(255,255,255,0.15)" strokeWidth="0.5" />
+                  <line x1="0" y1="-30" x2="0" y2="30" stroke="rgba(255,255,255,0.15)" strokeWidth="0.5" />
+                  {points.map((pt, i) => (
+                    <circle key={i} cx={pt.x} cy={-pt.y} r="1.2" fill={pt.color} opacity="0.85" />
+                  ))}
+                </svg>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </main>
     </>
   );

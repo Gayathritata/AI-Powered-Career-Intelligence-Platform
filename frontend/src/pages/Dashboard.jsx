@@ -135,7 +135,7 @@ const Dashboard = () => {
                   id="dashboard-main-upload-btn"
                   style={{ padding: '14px 24px', fontSize: 15 }}
                 >
-                  🚀 Upload Resume Now
+                   Upload Resume Now
                 </button>
 
               </div>
