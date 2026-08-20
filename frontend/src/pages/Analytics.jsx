@@ -77,10 +77,10 @@ const Analytics = () => {
         });
       }
     });
-    return { clusters, points };
+    return points;
   };
 
-  const { clusters, points } = generateClusterPoints();
+  const points = generateClusterPoints();
 
   return (
     <>
