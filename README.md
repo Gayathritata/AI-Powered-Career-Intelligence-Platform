@@ -8,9 +8,9 @@ CareerCast is an AI-powered Career Recommendation System developed as part of th
 
 ## 📖 Problem Statement
 
-Navigating career decisions is one of the most consequential challenges faced by students, early career professionals, and experienced practitioners seeking to pivot into emerging fields. The modern labor market is characterized by rapidly evolving skill demands, fragmented educational pathways, and a vast landscape of role definitions, making career planning inherently complex.
+Navigating career decisions is one of the most consequential challenges faced by students, early-career professionals, and experienced practitioners seeking to pivot into emerging fields. The modern labor market is characterized by rapidly evolving skill demands, fragmented educational pathways, and a vast, often opaque landscape of role definitions that makes career planning inherently complex. Individuals frequently rely on anecdotal guidance, generalized aptitude tests, or informal professional networks—mechanisms that lack the predictive rigor necessary to surface truly personalized, data-driven career trajectories.
 
-CareerCast addresses this challenge by constructing an AI-powered career recommendation system that analyzes a user's structured professional profile extracted from their resume and predicts the most suitable career paths. The system also performs skill gap analysis, evaluates resume quality through an ATS Resume Score, and provides personalized recommendations to improve career readiness.
+CareerCast addresses this gap by constructing an AI-powered career path prediction system that ingests a user's structured professional profile comprising technical and soft skills, educational qualifications, and work experience—and applies machine learning classification and natural language processing pipelines to predict the most likely and most suitable career paths. Beyond prediction, the system ranks candidate career options by probability, surfaces skill gap analyses, and provides actionable resume improvement guidance. Targeting students choosing initial careers, professionals contemplating domain transitions, and institutional career services, CareerCast transforms career counselling from an art of intuition into a science of evidence-based recommendation.
 
 ---
 
@@ -92,23 +92,42 @@ Resume Improvement Suggestions
 ```text
 CareerCast/
 │
-├── frontend/
+├── backend/                  # FastAPI Application & ML Pipelines
+│   ├── app/
+│   │   ├── database/         # Database connection & ORM models (SQLite / MySQL)
+│   │   ├── ml/               # CareerPredictor, accuracy gate & MLflow tracker
+│   │   ├── models/           # SQLAlchemy ORM schemas
+│   │   ├── parser/           # Resume parser (PDF/DOCX extraction & NLP)
+│   │   ├── routers/          # API endpoints (/auth, /recommendation)
+│   │   ├── schemas/          # Pydantic request & response models
+│   │   ├── services/         # Skill gap analyzer & learning path services
+│   │   └── main.py           # FastAPI application entry point
+│   ├── tests/                # Automated pytest test suite
+│   ├── requirements.txt      # Python dependencies
+│   └── run.py                # Server launcher script
 │
-├── backend/
+├── frontend/                 # React.js Web Interface
+│   ├── public/               # Static assets & template
+│   ├── src/
+│   │   ├── components/       # UI navigation & layout components
+│   │   ├── pages/            # Dashboard, Analytics, Results, Profile views
+│   │   └── services/         # Axios API integration
+│   └── package.json          # Node dependencies & npm scripts
 │
-├── datasets/
+├── streamlit_app/            # Streamlit Interactive Interface
+│   ├── app.py                # Streamlit application entry point
+│   └── requirements.txt      # Streamlit dependencies
+│
+├── datasets/                 # Datasets (Resume, O*NET, ESCO, Career)
 │   ├── resume_dataset/
 │   ├── onet/
 │   ├── esco/
 │   └── career_dataset/
 │
-├── trained_models/
+├── trained_models/           # Exported Machine Learning model artifacts
 │
-├── requirements.txt
-│
-├── README.md
-│
-└── LICENSE
+├── README.md                 # Project documentation
+└── LICENSE                   # License terms
 ```
 
 ---
@@ -291,38 +310,39 @@ Each recommendation includes:
 
 ---
 
-# 🚀 Installation
+# 🚀 Installation & Execution
 
-## Clone the repository
+## 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/CareerCast.git
-cd CareerCast
+git clone https://github.com/Gayathritata/AI-Powered-Career-Intelligence-Platform.git
+cd AI-Powered-Career-Intelligence-Platform
 ```
 
-## Install Backend Dependencies
+## 2. Start Backend API (FastAPI)
 
 ```bash
+cd backend
 pip install -r requirements.txt
+python run.py
 ```
+*The FastAPI backend will run at `http://localhost:8000`. Interactive API documentation is available at `http://localhost:8000/docs`.*
 
-## Install Frontend Dependencies
+## 3. Start Frontend Application (React)
 
 ```bash
 cd frontend
 npm install
+npm start
 ```
+*The React web interface will run at `http://localhost:3000`.*
 
-## Start Backend
+## 4. (Optional) Run Streamlit Dashboard
 
 ```bash
-uvicorn app.main:app --reload
-```
-
-## Start Frontend
-
-```bash
-npm run dev
+cd streamlit_app
+pip install -r requirements.txt
+streamlit run app.py
 ```
 
 ---
