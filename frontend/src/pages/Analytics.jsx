@@ -211,7 +211,7 @@ const Analytics = () => {
             alignItems: 'center'
           }}>
             {/* 3 Bar Graphs Container */}
-            <div style={{ position: 'relative', height: 260, width: '100%' }}>
+            <div style={{ position: 'relative', height: 265, width: '100%' }}>
               {/* Grid Y-Axis Lines */}
               {[1.0, 0.8, 0.6, 0.4, 0.2, 0].map((val) => (
                 <div key={val} style={{
@@ -221,7 +221,7 @@ const Analytics = () => {
                   right: 0,
                   display: 'flex',
                   alignItems: 'center',
-                  borderTop: val === 0 ? '1px solid rgba(255,255,255,0.3)' : '1px dashed rgba(255,255,255,0.08)',
+                  borderTop: val === 0 ? '2px solid rgba(255, 255, 255, 0.35)' : '1px dashed rgba(255, 255, 255, 0.08)',
                   height: 0
                 }}>
                   <span style={{
@@ -236,11 +236,11 @@ const Analytics = () => {
                 </div>
               ))}
 
-              {/* Bars Group */}
+              {/* Bars Plot Area (height: 200px, top 0 to 200px) */}
               <div style={{
                 position: 'absolute',
                 top: 0,
-                bottom: 40,
+                height: 200,
                 left: 60,
                 right: 20,
                 display: 'flex',
@@ -250,7 +250,8 @@ const Analytics = () => {
                 paddingRight: 10
               }}>
                 {/* Graph 1: Logistic Regression */}
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 120 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 100, position: 'relative' }}>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: '#38bdf8', marginBottom: 4 }}>91.2%</span>
                   <div style={{
                     width: '100%',
                     height: `${0.912 * 200}px`,
@@ -260,13 +261,11 @@ const Analytics = () => {
                     boxShadow: '0 0 15px rgba(56, 189, 248, 0.35)',
                     transition: 'all 0.3s ease'
                   }} />
-                  <span style={{ marginTop: 12, fontSize: 13, fontWeight: 700, color: '#38bdf8', textAlign: 'center' }}>
-                    Logistic Regression
-                  </span>
                 </div>
 
                 {/* Graph 2: Random Forest */}
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 120 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 100, position: 'relative' }}>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: '#c084fc', marginBottom: 4 }}>93.5%</span>
                   <div style={{
                     width: '100%',
                     height: `${0.9345 * 200}px`,
@@ -276,21 +275,18 @@ const Analytics = () => {
                     boxShadow: '0 0 15px rgba(192, 132, 252, 0.35)',
                     transition: 'all 0.3s ease'
                   }} />
-                  <span style={{ marginTop: 12, fontSize: 13, fontWeight: 700, color: '#c084fc', textAlign: 'center' }}>
-                    Random Forest
-                  </span>
                 </div>
 
                 {/* Graph 3: XGBoost */}
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 120, position: 'relative' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 100, position: 'relative' }}>
                   <div style={{
                     position: 'absolute',
-                    top: -38,
+                    top: -30,
                     background: 'rgba(234, 179, 8, 0.2)',
                     border: '1px solid #eab308',
                     borderRadius: 20,
-                    padding: '3px 10px',
-                    fontSize: 11,
+                    padding: '2px 8px',
+                    fontSize: 10,
                     fontWeight: 700,
                     color: '#fef08a',
                     display: 'flex',
@@ -302,6 +298,7 @@ const Analytics = () => {
                     <span>✔</span> Threshold Met
                   </div>
 
+                  <span style={{ fontSize: 11, fontWeight: 800, color: '#fef08a', marginBottom: 4 }}>95.8%</span>
                   <div style={{
                     width: '100%',
                     height: `${0.9582 * 200}px`,
@@ -311,7 +308,34 @@ const Analytics = () => {
                     boxShadow: '0 0 25px rgba(234, 179, 8, 0.35)',
                     transition: 'all 0.3s ease'
                   }} />
-                  <span style={{ marginTop: 12, fontSize: 13, fontWeight: 800, color: '#fef08a', textAlign: 'center' }}>
+                </div>
+              </div>
+
+              {/* X-Axis Algorithm Labels (positioned cleanly BELOW 0.0 baseline line) */}
+              <div style={{
+                position: 'absolute',
+                top: 208,
+                left: 60,
+                right: 20,
+                display: 'flex',
+                justify: 'space-around',
+                paddingLeft: 10,
+                paddingRight: 10
+              }}>
+                <div style={{ width: 120, textAlign: 'center' }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: '#38bdf8', display: 'block', lineHeight: '1.3' }}>
+                    Logistic Regression
+                  </span>
+                </div>
+
+                <div style={{ width: 120, textAlign: 'center' }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: '#c084fc', display: 'block', lineHeight: '1.3' }}>
+                    Random Forest
+                  </span>
+                </div>
+
+                <div style={{ width: 120, textAlign: 'center' }}>
+                  <span style={{ fontSize: 12, fontWeight: 800, color: '#fef08a', display: 'block', lineHeight: '1.3' }}>
                     XGBoost (Ensemble)
                   </span>
                 </div>

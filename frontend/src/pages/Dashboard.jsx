@@ -92,9 +92,6 @@ const Dashboard = () => {
             gap: 24,
           }}>
             <div style={{ flex: '1 1 400px' }}>
-              <div className="badge badge-primary" style={{ marginBottom: 12 }}>
-                <span>⚡</span> Primary Step
-              </div>
               <h2 style={{ fontSize: 28, fontWeight: 800, marginBottom: 12 }}>
                 📄 Upload Resume to Get Started
               </h2>
