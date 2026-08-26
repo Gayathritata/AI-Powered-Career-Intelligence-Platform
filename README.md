@@ -28,6 +28,45 @@ CareerCast addresses this gap by constructing an AI-powered career path predicti
 
 ---
 
+# 🔄 System Architecture & Implemented Modules
+
+### 1. User Profile Ingestion & Resume Parsing
+- **Dual Ingestion Engine**: Accepts both structured inputs (form-based profile creation) and unstructured inputs (raw resume files in PDF/DOCX format) via Web Dashboard, Streamlit, and REST APIs.
+- **NLP Extraction Pipeline**: Utilizes **spaCy Named Entity Recognition (NER)** to extract user technical & soft skills, job titles, educational degrees, institutions, certifications, and experience duration markers.
+- **Robust Format Handling**: Accommodates non-standard resume formats, mixed-language documents, skill synonyms, and abbreviated role titles seamlessly. Resumes are processed in-memory and deleted after parsing.
+
+### 2. Feature Engineering & Skill Vectorization
+- **Canonical Skill Taxonomy**: Derived from the **O*NET Occupational Database** and curated **ESCO / LinkedIn job posting corpora**.
+- **Vector Representation**: Vectorizes user skill sets using multi-hot encoding, TF-IDF weighted skill frequency matrices, and skill embedding models (*Sentence-BERT* fine-tuned on job descriptions & *skill2vec*).
+- **Weighted Scoring Heuristic**: Weights experience features by recency, role seniority, and domain relevance using a configurable scoring heuristic.
+
+### 3. Career Prediction & Classification Engine
+- **Ensemble ML Classifiers**: Trains and evaluates an ensemble of classifiers—**Logistic Regression** (baseline), **Random Forest**, and **XGBoost**—on historical career transition & job description datasets.
+- **Hyperparameter Optimization**: Applies cross-validated hyperparameter optimization (**GridSearchCV** / **Optuna**) to maximize macro F1-score across career categories (achieving **>95% top-1 accuracy**).
+- **Interdisciplinary Multi-Label Support**: Supports multi-label classification for profiles spanning interdisciplinary career domains (e.g., *ML Engineer* with *Product Management* aptitude).
+
+### 4. Career Recommendation & Ranking System
+- **Composite Probability Ranking**: Ranks candidate career paths using a composite probability score blending classifier output probabilities with market demand signals.
+- **Top-K Recommendations**: Surfaces Top-K (default **K=5**) career recommendations complete with confidence scores, alignment percentages, and confidence intervals.
+- **Skill Gap Analysis**: Quantifies missing competencies by comparing user skills with target career canonical skill profiles, generating prioritized skill development roadmaps.
+
+### 5. Data Management & Model Registry
+- **Relational Data Persistence**: Persists user profiles, parsed features, prediction logs, and recommendation histories in a relational store (**SQLite** / **MySQL**) managed via **SQLAlchemy ORM**.
+- **MLflow Model Registry**: Maintains a versioned **MLflow Model Registry** (`CareerCast_Recommender`) to enable reproducible experiments, A/B model comparisons, and controlled production rollouts.
+- **Market Data Pipeline**: Supports dataset refresh pipelines to incorporate updated job market signals from public API sources.
+
+### 6. API, CLI & CI Integration
+- **FastAPI REST Endpoints**: Exposes REST endpoints (`/predict`, `/recommend`, `/gap-report`, `/mlflow/models`, `/health`) for profile submission, prediction retrieval, and report generation.
+- **CLI Interface**: Provides a command-line interface supporting commands: profile, predict, recommend, gap-report, and export.
+- **CI Accuracy Gate**: Integrated with automated pytest suites and CI workflows enforcing a strict **≥90.0% model accuracy threshold** on build and deployment pipelines.
+
+### 7. Analytics Dashboard & Review UI
+- **React.js & Streamlit UIs**: Offers an interactive web dashboard in React.js alongside an optional Streamlit interface (`streamlit_app/app.py`) with Plotly visualizations.
+- **Interactive Visualizations**: Includes model comparison bar charts, candidate profile breakdown, and **t-SNE skill embedding clusters (SBERT)**.
+- **Export Capabilities**: Supports saving recommended career paths and exporting personalized skill development roadmaps in PDF and CSV formats.
+
+---
+
 # 🔄 Project Workflow
 
 ```text
@@ -66,24 +105,31 @@ Resume Improvement Suggestions
 # 🛠️ Technology Stack
 
 ## Frontend
-- React.js
+- React.js (v19)
 - Tailwind CSS
 - Axios
+- Plotly.js / Chart.js
 
 ## Backend
 - FastAPI
-- Python
+- Python 3.13
+- SQLAlchemy ORM (SQLite / MySQL)
+- Pydantic
 
-## Database
-- MySQL
+## Machine Learning & MLOps
+- Scikit-learn (Logistic Regression, Random Forest, SVM, Decision Trees)
+- XGBoost
+- MLflow (Model Registry & Experiment Tracking)
+- Optuna / GridSearchCV (Hyperparameter Optimization)
 
-## Machine Learning
-- Scikit-learn
+## Natural Language Processing (NLP) & Embeddings
+- spaCy (Named Entity Recognition - NER)
+- Sentence-BERT & TF-IDF Vectorizers
+- PyMuPDF (fitz) & python-docx
 
-## Natural Language Processing
-- spaCy
-- PyMuPDF
-- python-docx
+## Analytics & UI Extensions
+- Streamlit (`streamlit_app/app.py`)
+- Custom CLI Tools
 
 ---
 
