@@ -1,14 +1,18 @@
 """
 streamlit_app/app.py
 
-CareerCast Streamlit Review UI Prototype
-Interactive dashboard for Career Prediction, Skill Gap Analysis & PDF/Markdown Report Export.
+CareerCast Streamlit Dashboard & Review Interface (Milestone 4 Enhanced)
+Featuring:
+1. Single Resume & Profile Analysis
+2. Cohort Analytics & Batch Resume Aggregations
+3. Career Comparison Views (Side-by-side)
+4. PDF & Multi-Format Report Exporter
 """
 
 import sys
 import os
 import json
-import base64
+import pandas as pd
 from typing import Dict, Any, List
 import streamlit as st
 import plotly.express as px
@@ -21,10 +25,11 @@ from backend.app.ml.predictor import CareerPredictor
 from backend.app.services.skill_gap_service import gap_analyzer
 from backend.app.ml.ranking_engine import CAREER_REQUIRED_SKILLS
 from backend.app.parser.resume_parser import extract_text_from_bytes, extract_ner_entities
+from streamlit_app.pdf_exporter import generate_pdf_bytes
 
 # Page configuration
 st.set_page_config(
-    page_title="CareerCast AI - Review UI Prototype",
+    page_title="CareerCast AI - Career Intelligence Platform",
     page_icon="🚀",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -39,12 +44,12 @@ st.markdown("""
         background: linear-gradient(90deg, #6366f1 0%, #a855f7 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.2rem;
     }
     .sub-header {
         color: #94a3b8;
-        font-size: 1.1rem;
-        margin-bottom: 2rem;
+        font-size: 1.05rem;
+        margin-bottom: 1.5rem;
     }
     .metric-card {
         background-color: #1e293b;
@@ -77,6 +82,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
+@st.cache_resource
 def load_predictor():
     p = CareerPredictor.get_instance()
     if not p.is_loaded:
@@ -88,232 +94,251 @@ predictor = load_predictor()
 
 
 def main():
-    st.markdown('<div class="main-header">🎯 CareerCast AI Review Dashboard</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-header">Milestone 3 Prototype — AI Career Predictions, Skill Gap Analysis & Exportable Intelligence Reports</div>', unsafe_allow_html=True)
+    st.markdown('<div class="main-header">🎯 CareerCast AI Dashboard</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sub-header">Milestone 4 — AI Career Predictions, Cohort Analytics, Career Comparison & PDF Export</div>', unsafe_allow_html=True)
 
-    # Sidebar setup
-    st.sidebar.title("🛠 Settings & Profile Input")
-    input_method = st.sidebar.radio("Select Input Method", ["Upload Resume (PDF/DOCX/TXT)", "Paste Resume Text"])
+    # Main Navigation Tabs
+    tab_single, tab_cohort, tab_compare, tab_export = st.tabs([
+        "📁 Single Resume Analysis",
+        "👥 Cohort Analytics",
+        "⚖️ Career Comparison",
+        "📄 Export & Documentation"
+    ])
 
-    resume_text = ""
-    filename = "resume.txt"
+    # ── TAB 1: SINGLE RESUME ANALYSIS ──────────────────────────────────────────
+    with tab_single:
+        st.sidebar.title("🛠 Profile Input")
+        input_method = st.sidebar.radio("Select Input Method", ["Upload Resume (PDF/DOCX/TXT)", "Paste Resume Text"], key="single_input")
 
-    if input_method == "Upload Resume (PDF/DOCX/TXT)":
-        uploaded_file = st.sidebar.file_uploader("Upload Resume File", type=["pdf", "docx", "doc", "txt"])
-        if uploaded_file is not None:
-            filename = uploaded_file.name
-            file_bytes = uploaded_file.read()
-            with st.spinner("Extracting text from resume file..."):
-                resume_text = extract_text_from_bytes(file_bytes, filename)
-            st.sidebar.success(f"File '{filename}' parsed ({len(resume_text)} characters)")
-    else:
-        resume_text = st.sidebar.text_area("Paste Resume / Candidate Profile Text", height=220, placeholder="Paste candidate resume text here...")
+        resume_text = ""
+        filename = "resume.txt"
 
-    top_n_roles = st.sidebar.slider("Number of Top Predictions", min_value=3, max_value=10, value=5)
-    selected_target_career = st.sidebar.selectbox("Target Career for Skill Gap Report (Optional)", ["Auto-select Top Match"] + list(CAREER_REQUIRED_SKILLS.keys()))
+        if input_method == "Upload Resume (PDF/DOCX/TXT)":
+            uploaded_file = st.sidebar.file_uploader("Upload Resume File", type=["pdf", "docx", "doc", "txt"], key="single_file")
+            if uploaded_file is not None:
+                filename = uploaded_file.name
+                file_bytes = uploaded_file.read()
+                with st.spinner("Extracting text..."):
+                    resume_text = extract_text_from_bytes(file_bytes, filename)
+                st.sidebar.success(f"Parsed '{filename}' ({len(resume_text)} chars)")
+        else:
+            resume_text = st.sidebar.text_area("Paste Resume Text", height=200, placeholder="Paste resume text here...", key="single_text")
 
-    if not resume_text.strip():
-        st.info("👈 Please upload a resume or paste profile text in the sidebar to run career prediction and skill gap analysis.")
-        
-        # Sample Demo Resume Trigger
-        if st.button("🚀 Load Demo AI Engineer Resume"):
-            demo_resume = """
-            Senior Software Developer & AI Enthusiast with 4 years of experience building scalable web applications.
-            Proficient in Python, JavaScript, React, FastAPI, SQL, PostgreSQL, and Git.
-            Experience with Machine Learning, Scikit-Learn, PyTorch, Pandas, NumPy, Docker, and REST APIs.
-            Holds a Bachelor of Science in Computer Science.
-            """
-            st.session_state["demo_text"] = demo_resume
-            st.rerun()
+        top_n_roles = st.sidebar.slider("Top Predictions Count", 3, 10, 5, key="single_top_n")
+        selected_target_career = st.sidebar.selectbox("Target Career for Gap Analysis", ["Auto-select Top Match"] + list(CAREER_REQUIRED_SKILLS.keys()), key="single_target")
 
-        if "demo_text" in st.session_state:
-            resume_text = st.session_state["demo_text"]
+        if not resume_text.strip():
+            st.info("👈 Please upload a resume or paste profile text in the sidebar to begin analysis.")
+            if st.button("🚀 Load Sample Demo Resume (AI/ML Developer)"):
+                resume_text = """
+                Senior Software Developer & AI Enthusiast with 4 years experience.
+                Proficient in Python, SQL, React, FastAPI, PostgreSQL, and Git.
+                Experience with Machine Learning, Scikit-Learn, PyTorch, Pandas, NumPy, Docker, and AWS.
+                Holds a B.S. in Computer Science.
+                """
+                st.session_state["demo_text"] = resume_text
+                st.rerun()
 
-    if resume_text.strip():
-        st.subheader("📄 Candidate Overview & Parsed Entities")
-        col_text, col_ner = st.columns([1.2, 1])
+        if resume_text.strip():
+            st.subheader("📄 Extracted Entities & Information")
+            col_text, col_ner = st.columns([1.2, 1])
 
-        with col_text:
-            st.text_area("Extracted Resume Text", resume_text, height=180, disabled=True)
+            with col_text:
+                st.text_area("Parsed Text Preview", resume_text, height=160, disabled=True)
 
-        with col_ner:
-            entities = extract_ner_entities(resume_text)
-            st.write(f"**Extracted NER Entities ({len(entities)} found)**")
-            if entities:
-                skills_found = [e["text"] for e in entities if e["label"] == "SKILL"]
-                roles_found = [e["text"] for e in entities if e["label"] == "ROLE"]
-                edu_found = [e["text"] for e in entities if e["label"] == "EDUCATION"]
+            with col_ner:
+                entities = extract_ner_entities(resume_text)
+                st.write(f"**Extracted Entities ({len(entities)} found)**")
+                skills_found = list(set([e["text"] for e in entities if e["label"] == "SKILL"]))
+                roles_found = list(set([e["text"] for e in entities if e["label"] == "ROLE"]))
 
                 if skills_found:
-                    st.write("🛠 **Skills:** " + ", ".join(set(skills_found[:12])))
+                    st.write("🛠 **Skills:** " + ", ".join(skills_found[:10]))
                 if roles_found:
-                    st.write("💼 **Roles:** " + ", ".join(set(roles_found[:5])))
-                if edu_found:
-                    st.write("🎓 **Education:** " + ", ".join(set(edu_found[:3])))
-            else:
-                st.caption("Standard technical term extraction active.")
+                    st.write("💼 **Roles:** " + ", ".join(roles_found[:5]))
 
-        st.markdown("---")
+            st.markdown("---")
 
-        # ── 1. Career Predictions Section ─────────────────────────────────────
-        st.subheader("📊 Ensemble Career Path Predictions")
-        predictions = predictor.predict(raw_text=resume_text, top_n=top_n_roles)
+            # Predictions
+            st.subheader("📊 Ensemble Career Predictions")
+            predictions = predictor.predict(raw_text=resume_text, top_n=top_n_roles)
+            if predictions:
+                col_chart, col_card = st.columns([1.5, 1])
 
-        if predictions:
-            col_chart, col_top = st.columns([1.5, 1])
+                with col_chart:
+                    df_pred = pd.DataFrame(predictions)
+                    fig = px.bar(
+                        df_pred,
+                        x="confidence",
+                        y="career",
+                        orientation="h",
+                        title="Match Scores (%)",
+                        color="confidence",
+                        color_continuous_scale="Viridis",
+                        text="confidence"
+                    )
+                    fig.update_layout(yaxis={"categoryorder": "total ascending"}, height=330, margin=dict(l=0, r=0, t=30, b=0))
+                    fig.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
+                    st.plotly_chart(fig, use_container_width=True)
 
-            with col_chart:
-                df_pred = pd_dataframe_from_preds(predictions)
-                fig = px.bar(
-                    df_pred,
-                    x="confidence",
-                    y="career",
-                    orientation="h",
-                    title="Top Predicted Career Match Scores (%)",
-                    labels={"confidence": "Composite Match Score (%)", "career": "Career Path"},
-                    color="confidence",
-                    color_continuous_scale="Viridis",
-                    text="confidence"
+                with col_card:
+                    top_role = predictions[0]["career"]
+                    top_score = predictions[0]["confidence"]
+                    st.markdown(f"""
+                    <div class="metric-card">
+                        <h4 style="color: #818cf8; margin-top:0;">Top Career Recommendation</h4>
+                        <h2 style="font-size: 1.8rem; margin: 0.4rem 0;">{top_role}</h2>
+                        <h3 style="color: #34d399; margin:0;">{top_score}% Confidence</h3>
+                        <p style="color: #94a3b8; font-size: 0.85rem; margin-top: 0.8rem;">
+                            Ensemble Classifier (XGBoost, Random Forest, Logistic Regression & SBERT).
+                        </p>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+            st.markdown("---")
+
+            # Skill Gap Analysis
+            st.subheader("🎯 Skill Gap Analysis & Roadmap")
+            eval_target = None if selected_target_career == "Auto-select Top Match" else selected_target_career
+            gap_report = gap_analyzer.analyze_gap(raw_text=resume_text, target_career=eval_target)
+
+            m1, m2, m3, m4 = st.columns(4)
+            m1.metric("Overall Match Score", f"{gap_report['match_score']}%")
+            m2.metric("Skill Coverage Ratio", f"{gap_report['coverage_ratio']}%")
+            m3.metric("Matched Skills", len(gap_report['matched_skills']))
+            m4.metric("Missing Skills", len(gap_report['missing_skills']))
+
+            c1, c2 = st.columns(2)
+            with c1:
+                st.markdown("### ✅ Matched Skills")
+                chips_matched = "".join([f'<span class="skill-chip-matched">{s}</span>' for s in gap_report["matched_skills"]])
+                st.markdown(chips_matched if gap_report["matched_skills"] else "None", unsafe_allow_html=True)
+
+            with c2:
+                st.markdown("### ⚠️ Skill Gaps")
+                chips_missing = "".join([f'<span class="skill-chip-missing">{s}</span>' for s in gap_report["missing_skills"]])
+                st.markdown(chips_missing if gap_report["missing_skills"] else "None", unsafe_allow_html=True)
+
+            st.markdown("#### 📚 Recommended Courses")
+            for c in gap_report.get("recommended_courses", []):
+                st.write(f"- **{c.get('course_name')}** ({c.get('provider')}) — *Skill:* `{c.get('skill_covered')}` [{c.get('difficulty')}]")
+
+    # ── TAB 2: COHORT ANALYTICS ────────────────────────────────────────────────
+    with tab_cohort:
+        st.subheader("👥 Cohort Analytics & Batch Portfolio Aggregations")
+        st.markdown("Analyze skill frequency and career distribution across candidate cohorts.")
+
+        cohort_files = st.file_uploader("Batch Upload Resumes (PDF/DOCX/TXT)", type=["pdf", "docx", "txt"], accept_multiple_files=True, key="cohort_files")
+
+        if cohort_files:
+            cohort_data = []
+            for f in cohort_files:
+                text = extract_text_from_bytes(f.read(), f.name)
+                preds = predictor.predict(raw_text=text, top_n=1)
+                top_c = preds[0]["career"] if preds else "Unknown"
+                top_conf = preds[0]["confidence"] if preds else 0.0
+                ents = extract_ner_entities(text)
+                sk = [e["text"] for e in ents if e["label"] == "SKILL"]
+                cohort_data.append({
+                    "filename": f.name,
+                    "top_career": top_c,
+                    "confidence": top_conf,
+                    "skills_count": len(sk),
+                    "skills": sk
+                })
+
+            df_cohort = pd.DataFrame(cohort_data)
+
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("### Top Career Predictions Distribution")
+                fig_pie = px.pie(df_cohort, names="top_career", title="Cohort Recommended Careers", color_discrete_sequence=px.colors.qualitative.Pastel)
+                st.plotly_chart(fig_pie, use_container_width=True)
+
+            with col2:
+                st.markdown("### Match Confidence Scores Across Cohort")
+                fig_hist = px.histogram(df_cohort, x="confidence", nbins=10, title="Confidence Score Distribution (%)", color_discrete_sequence=["#6366f1"])
+                st.plotly_chart(fig_hist, use_container_width=True)
+
+            st.markdown("### Cohort Resumes Summary Table")
+            st.dataframe(df_cohort[["filename", "top_career", "confidence", "skills_count"]], use_container_width=True)
+        else:
+            st.info("💡 Upload multiple candidate resumes above to run cohort analytics.")
+
+    # ── TAB 3: CAREER COMPARISON VIEWS ──────────────────────────────────────────
+    with tab_compare:
+        st.subheader("⚖️ Side-by-Side Career Path Comparison")
+        st.markdown("Compare multiple target careers for the candidate to evaluate skill coverage and missing priorities.")
+
+        available_careers = list(CAREER_REQUIRED_SKILLS.keys())
+        col_select1, col_select2 = st.columns(2)
+
+        with col_select1:
+            career1 = st.selectbox("Select Career Option A", available_careers, index=0, key="cmp_c1")
+        with col_select2:
+            career2 = st.selectbox("Select Career Option B", available_careers, index=1 if len(available_careers)>1 else 0, key="cmp_c2")
+
+        if st.button("⚖️ Compare Careers"):
+            rep1 = gap_analyzer.analyze_gap(raw_text=resume_text if 'resume_text' in locals() else "", target_career=career1)
+            rep2 = gap_analyzer.analyze_gap(raw_text=resume_text if 'resume_text' in locals() else "", target_career=career2)
+
+            col_a, col_b = st.columns(2)
+            with col_a:
+                st.markdown(f"### 🎯 Option A: {career1}")
+                st.metric("Match Score", f"{rep1['match_score']}%")
+                st.write("**Matched Skills:**", ", ".join(rep1['matched_skills']) if rep1['matched_skills'] else "None")
+                st.write("**Missing Skills:**", ", ".join(rep1['missing_skills']) if rep1['missing_skills'] else "None")
+
+            with col_b:
+                st.markdown(f"### 🎯 Option B: {career2}")
+                st.metric("Match Score", f"{rep2['match_score']}%")
+                st.write("**Matched Skills:**", ", ".join(rep2['matched_skills']) if rep2['matched_skills'] else "None")
+                st.write("**Missing Skills:**", ", ".join(rep2['missing_skills']) if rep2['missing_skills'] else "None")
+
+    # ── TAB 4: EXPORT & DOCUMENTATION ───────────────────────────────────────────
+    with tab_export:
+        st.subheader("📄 Export Reports & Documentation Release")
+        st.markdown("Download generated candidate reports in PDF, Markdown, and JSON formats.")
+
+        if 'gap_report' in locals() and 'predictions' in locals():
+            report_payload = {
+                "target_career": gap_report["target_career"],
+                "match_score": gap_report["match_score"],
+                "matched_skills": gap_report["matched_skills"],
+                "missing_skills": gap_report["missing_skills"],
+                "recommended_courses": gap_report.get("recommended_courses", []),
+                "top_predictions": predictions
+            }
+
+            pdf_data = generate_pdf_bytes(report_payload)
+            json_data = json.dumps(report_payload, indent=2)
+
+            col_d1, col_d2 = st.columns(2)
+            with col_d1:
+                st.download_button(
+                    label="📄 Download PDF Summary Report",
+                    data=pdf_data,
+                    file_name="CareerCast_Report.pdf",
+                    mime="application/pdf"
                 )
-                fig.update_layout(yaxis={"categoryorder": "total ascending"}, height=350, margin=dict(l=0, r=0, t=40, b=0))
-                fig.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
-                st.plotly_chart(fig, use_container_width=True)
-
-            with col_top:
-                top_role = predictions[0]["career"]
-                top_score = predictions[0]["confidence"]
-                st.markdown(f"""
-                <div class="metric-card">
-                    <h3 style="color: #818cf8; margin-top:0;">Top Career Recommendation</h3>
-                    <h2 style="font-size: 2rem; margin: 0.5rem 0;">{top_role}</h2>
-                    <h3 style="color: #34d399; margin:0;">{top_score}% Match Confidence</h3>
-                    <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 1rem;">
-                        Multi-Model Ensemble powered by XGBoost (95.82% Top-1 Accuracy), Random Forest, Logistic Regression & Sentence-BERT.
-                    </p>
-                </div>
-                """, unsafe_allow_html=True)
+            with col_d2:
+                st.download_button(
+                    label="📊 Download JSON Data Export",
+                    data=json_data,
+                    file_name="CareerCast_Report.json",
+                    mime="application/json"
+                )
+        else:
+            st.info("Run a single resume analysis in Tab 1 to generate downloadable PDF/JSON reports.")
 
         st.markdown("---")
-
-        # ── 2. Skill Gap Analysis Section ─────────────────────────────────────
-        st.subheader("🎯 Skill Gap Analysis & Actionable Improvement Plan")
-
-        target_role_eval = None if selected_target_career == "Auto-select Top Match" else selected_target_career
-        gap_report = gap_analyzer.analyze_gap(raw_text=resume_text, target_career=target_role_eval)
-
-        st.write(f"Analyzing profile against target role: **{gap_report['target_career']}**")
-
-        m1, m2, m3, m4 = st.columns(4)
-        m1.metric("Overall Match Score", f"{gap_report['match_score']}%")
-        m2.metric("Skill Coverage Ratio", f"{gap_report['coverage_ratio']}%")
-        m3.metric("Matched Skills", len(gap_report['matched_skills']))
-        m4.metric("Missing Skills", len(gap_report['missing_skills']))
-
-        col_matched, col_missing = st.columns(2)
-
-        with col_matched:
-            st.markdown("### ✅ Matched Skills")
-            if gap_report["matched_skills"]:
-                chips_html = "".join([f'<span class="skill-chip-matched">{s}</span>' for s in gap_report["matched_skills"]])
-                st.markdown(chips_html, unsafe_allow_html=True)
-            else:
-                st.warning("No exact canonical skills matched. Consider adding core technical keywords.")
-
-        with col_missing:
-            st.markdown("### ⚠️ Skill Gaps (Missing)")
-            if gap_report["missing_skills"]:
-                chips_html = "".join([f'<span class="skill-chip-missing">{s}</span>' for s in gap_report["missing_skills"]])
-                st.markdown(chips_html, unsafe_allow_html=True)
-            else:
-                st.success("Perfect alignment! No critical skill gaps identified.")
-
-        st.markdown("#### 💡 Actionable Improvement Roadmap")
-        for rec in gap_report["actionable_recommendations"]:
-            st.info(rec)
-
-        if gap_report["skill_priorities"]:
-            st.markdown("#### 📚 Prioritized Skill Acquisition & Project Ideas")
-            for gap in gap_report["skill_priorities"]:
-                with st.expander(f"🔹 {gap['skill_name']} — Priority: {gap['priority']} (Est. {gap['estimated_hours']} hrs)"):
-                    st.write(f"**Difficulty Level:** {gap['difficulty']}")
-                    st.write(f"**Recommended Resources:** {', '.join(gap['recommended_resources'])}")
-                    st.write(f"**Portfolio Project Idea:** {gap['suggested_project']}")
-
-        st.markdown("---")
-
-        # ── 3. Report Export Options ──────────────────────────────────────────
-        st.subheader("📥 Export Intelligence Report")
-
-        report_markdown = build_markdown_report(resume_text, predictions, gap_report)
-
-        col_exp1, col_exp2, col_exp3 = st.columns(3)
-        with col_exp1:
-            st.download_button(
-                label="📄 Download Report (Markdown)",
-                data=report_markdown,
-                file_name="CareerCast_Gap_Analysis_Report.md",
-                mime="text/markdown"
-            )
-
-        with col_exp2:
-            report_json = json.dumps({"predictions": predictions, "gap_report": gap_report}, indent=2)
-            st.download_button(
-                label="📊 Download Report (JSON)",
-                data=report_json,
-                file_name="CareerCast_Report.json",
-                mime="application/json"
-            )
-
-        with col_exp3:
-            html_report = f"<html><body><pre>{report_markdown}</pre></body></html>"
-            st.download_button(
-                label="🌐 Download Report (HTML)",
-                data=html_report,
-                file_name="CareerCast_Report.html",
-                mime="text/html"
-            )
-
-
-def pd_dataframe_from_preds(preds: List[Dict[str, Any]]):
-    import pandas as pd
-    return pd.DataFrame(preds)
-
-
-def build_markdown_report(raw_text: str, predictions: List[Dict[str, Any]], gap_report: Dict[str, Any]) -> str:
-    md = f"""# CareerCast AI - Career Intelligence & Skill Gap Report
-
-## 1. Top Recommended Career Paths
-"""
-    for idx, p in enumerate(predictions, start=1):
-        md += f"{idx}. **{p['career']}** — {p['confidence']}% Match Score\n"
-
-    md += f"""
----
-## 2. Skill Gap Analysis for Target Role: {gap_report['target_career']}
-- **Overall Match Score:** {gap_report['match_score']}%
-- **Skill Coverage Ratio:** {gap_report['coverage_ratio']}%
-- **Estimated Time to Bridge Gaps:** {gap_report['estimated_time_to_bridge']}
-
-### ✅ Matched Skills ({len(gap_report['matched_skills'])})
-{', '.join(gap_report['matched_skills']) if gap_report['matched_skills'] else 'None'}
-
-### ⚠️ Missing Skill Gaps ({len(gap_report['missing_skills'])})
-{', '.join(gap_report['missing_skills']) if gap_report['missing_skills'] else 'None'}
-
----
-## 3. Actionable Learning Roadmap & Portfolio Projects
-"""
-    for gap in gap_report.get("skill_priorities", []):
-        md += f"""
-### {gap['skill_name']} ({gap['priority']} Priority)
-- **Difficulty:** {gap['difficulty']}
-- **Estimated Hours:** {gap['estimated_hours']} hrs
-- **Recommended Learning Resources:** {', '.join(gap['recommended_resources'])}
-- **Suggested Portfolio Project:** {gap['suggested_project']}
-"""
-
-    md += "\n---\n*Report generated by CareerCast AI Intelligence Platform*\n"
-    return md
+        st.subheader("📖 System Documentation & Release Cards")
+        st.markdown("""
+        - **[API Reference](file:///d:/CareerCast/docs/API_REFERENCE.md)**
+        - **[CLI Guide](file:///d:/CareerCast/docs/CLI_GUIDE.md)**
+        - **[Dataset Card](file:///d:/CareerCast/docs/DATASET_CARD.md)**
+        - **[Model Card](file:///d:/CareerCast/docs/MODEL_CARD.md)**
+        """)
 
 
 if __name__ == "__main__":

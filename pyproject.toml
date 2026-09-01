@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "careercast"
+version = "1.0.0"
+description = "AI-Powered Career Path Prediction & Skill Gap Intelligence Platform"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+    { name = "CareerCast Team", email = "career.intelligence@careercast.ai" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[project.scripts]
+careercast = "careercast.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+python_files = ["test_*.py"]

@@ -358,38 +358,69 @@ Each recommendation includes:
 
 # 🚀 Installation & Execution
 
-## 1. Clone the Repository
+## 1. Clone the Repository & Install Package
 
 ```bash
 git clone https://github.com/Gayathritata/AI-Powered-Career-Intelligence-Platform.git
 cd AI-Powered-Career-Intelligence-Platform
+pip install -e .
 ```
 
-## 2. Start Backend API (FastAPI)
+## 2. CLI Command Line Usage
+
+Once installed, use the `careercast` CLI directly in your terminal:
+
+```bash
+# Predict top career paths from raw resume text
+careercast predict --text "Experienced Python Developer proficient in SQL, FastAPI, Machine Learning, PyTorch"
+
+# Predict from resume file (PDF/DOCX/TXT)
+careercast predict --file resume.pdf --top-n 5
+
+# Generate skill gap roadmap
+careercast recommend --skills "Python,SQL" --career "ML Engineer"
+
+# Export report to file
+careercast export --file resume.pdf --out report.json
+```
+
+## 3. Run Automated Integration & Regression Test Suite
+
+```bash
+pytest backend/tests/test_milestone3.py backend/tests/test_integration_pipeline.py backend/tests/test_regression.py -v
+```
+
+## 4. Start Backend API (FastAPI)
 
 ```bash
 cd backend
-pip install -r requirements.txt
 python run.py
 ```
-*The FastAPI backend will run at `http://localhost:8000`. Interactive API documentation is available at `http://localhost:8000/docs`.*
+*The FastAPI backend runs at `http://localhost:8000`. Interactive API documentation: `http://localhost:8000/docs`.*
 
-## 3. Start Frontend Application (React)
+## 5. Start Frontend Application (React)
 
 ```bash
 cd frontend
 npm install
 npm start
 ```
-*The React web interface will run at `http://localhost:3000`.*
+*The React web interface runs at `http://localhost:3000`.*
 
-## 4. (Optional) Run Streamlit Dashboard
+## 6. Run Interactive Streamlit Dashboard
 
 ```bash
-cd streamlit_app
-pip install -r requirements.txt
-streamlit run app.py
+streamlit run streamlit_app/app.py
 ```
+
+---
+
+# 📖 Documentation & Release Cards
+
+- 📄 **[API Reference](docs/API_REFERENCE.md)** — Complete specification of Python SDK & FastAPI REST endpoints.
+- 💻 **[CLI Guide](docs/CLI_GUIDE.md)** — Command-line interface usage, options, and output examples.
+- 📊 **[Dataset Card](docs/DATASET_CARD.md)** — Data sources, taxonomy structure (O*NET, ESCO), hygiene, and licensing.
+- 🤖 **[Model Card](docs/MODEL_CARD.md)** — Multi-model ensemble architecture (XGBoost >95% accuracy, RF, LR, SBERT), evaluation benchmarks, and CI accuracy gate.
 
 ---
 
