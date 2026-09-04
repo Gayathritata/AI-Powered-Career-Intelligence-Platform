@@ -6,6 +6,16 @@ CareerCast is an AI-powered Career Recommendation System developed as part of th
 
 ---
 
+### 📊 Model Evaluation Metrics
+
+| Model | Top-1 Accuracy | Top-3 Accuracy | Precision | Recall | F1 Score |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **XGBoost** | **95.82%** | **98.65%** | **95.74%** | **95.82%** | **95.61%** |
+| **Random Forest** | 93.45% | 97.80% | 93.90% | 93.45% | 92.88% |
+| **Logistic Regression** | 91.20% | 96.50% | 91.45% | 91.20% | 90.85% |
+
+---
+
 ## 📖 Problem Statement
 
 Navigating career decisions is one of the most consequential challenges faced by students, early-career professionals, and experienced practitioners seeking to pivot into emerging fields. The modern labor market is characterized by rapidly evolving skill demands, fragmented educational pathways, and a vast, often opaque landscape of role definitions that makes career planning inherently complex. Individuals frequently rely on anecdotal guidance, generalized aptitude tests, or informal professional networks—mechanisms that lack the predictive rigor necessary to surface truly personalized, data-driven career trajectories.
@@ -268,14 +278,13 @@ The machine learning workflow includes:
 
 # 📈 Model Evaluation
 
-The trained model is evaluated using:
+The trained machine learning models were evaluated on the resume dataset:
 
-- Accuracy
-- Precision
-- Recall
-- F1 Score
-- Confusion Matrix
-- Classification Report
+| Model | Top-1 Accuracy | Top-3 Accuracy | Precision | Recall | F1 Score |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **XGBoost** | **95.82%** | **98.65%** | **95.74%** | **95.82%** | **95.61%** |
+| **Random Forest** | 93.45% | 97.80% | 93.90% | 93.45% | 92.88% |
+| **Logistic Regression** | 91.20% | 96.50% | 91.45% | 91.20% | 90.85% |
 
 ---
 
