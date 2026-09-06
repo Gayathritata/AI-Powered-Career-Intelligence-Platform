@@ -167,13 +167,30 @@ B.S. Computer Engineering, MIT (2021)`,
 const Upload = () => {
   const fileInputRef = useRef(null);
 
-  const [selectedFile, setSelectedFile] = useState(null);
+  // Stores active analysis result (persisted across page navigation)
+  const [analysisResult, setAnalysisResult] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem('careercast_active_analysis') || localStorage.getItem('careercast_active_analysis');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      return null;
+    }
+  });
+
+  const [selectedFile, setSelectedFile] = useState(() => {
+    try {
+      const savedProfile = sessionStorage.getItem('careercast_parsed_resume') || localStorage.getItem('careercast_parsed_resume');
+      if (savedProfile) {
+        const parsed = JSON.parse(savedProfile);
+        if (parsed?.name) return { name: `${parsed.name}_Resume` };
+      }
+    } catch (e) {}
+    return null;
+  });
+
   const [isDragging, setIsDragging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  
-  // Stores the active analysis output data (starts clean as null until upload)
-  const [analysisResult, setAnalysisResult] = useState(null);
 
   const handleDragOver = (e) => {
     e.preventDefault();

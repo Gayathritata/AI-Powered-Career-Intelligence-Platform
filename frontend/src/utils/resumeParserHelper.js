@@ -177,6 +177,13 @@ const extractWholeProfessionalSummary = (text = '', lines = []) => {
   return 'No professional summary section provided in uploaded resume.';
 };
 
+const isMajorSectionHeader = (line) => {
+  if (!line) return false;
+  const clean = line.replace(/^[^a-zA-Z0-9]+/, '').replace(/[:-]$/, '').trim();
+  if (!clean || clean.length > 50) return false;
+  return /^(work experience|professional experience|technical experience|technical work experience|employment history|experience|internships|internship experience|career history|education|educational background|educational qualifications|academic background|academic details|academic qualifications|qualifications|education & credentials|technical skills|skills|key skills|core competencies|skills & abilities|skills & tools|projects|key projects|academic projects|personal projects|summary|professional summary|executive summary|career summary|profile|about me|about|career objective|objective|overview|certifications|awards|languages|publications|interests|hobbies|references|declaration)/i.test(clean);
+};
+
 /**
  * Extract Work Experience and Internships dynamically from resume text
  */
@@ -195,16 +202,17 @@ const extractExperienceAndInternships = (text, roleEntities, defaultRole) => {
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
+    const cleanLine = line.replace(/^[^a-zA-Z0-9]+/, '').replace(/[:-]$/, '').trim();
 
     // Detect Experience Section Start (including TECHNICAL EXPERIENCE)
-    if (expHeaderRegex.test(line)) {
+    if (!inExpSection && cleanLine.length < 50 && expHeaderRegex.test(cleanLine)) {
       inExpSection = true;
       detectedHeading = line;
       continue;
     }
 
-    // Detect Next Major Section
-    if (inExpSection && /^(education|academic background|academic qualifications|qualifications|projects|key projects|skills|technical skills|key skills|core competencies|certifications|awards|languages|publications)/i.test(line)) {
+    // Detect Next Major Section Header -> Exit Experience Section
+    if (inExpSection && isMajorSectionHeader(line) && !expHeaderRegex.test(cleanLine)) {
       break;
     }
 
@@ -240,7 +248,7 @@ const extractExperienceAndInternships = (text, roleEntities, defaultRole) => {
         currentBullets = [];
       } else if (line.startsWith('-') || line.startsWith('•') || line.startsWith('*')) {
         currentBullets.push(line.replace(/^[-•*]\s*/, ''));
-      } else if (line.length > 10) {
+      } else if (line.length > 10 && !isMajorSectionHeader(line)) {
         if (!currentTitle) {
           currentTitle = 'Technical Role / Experience';
         }
