@@ -107,14 +107,14 @@ const extractWholeProfessionalSummary = (text = '', lines = []) => {
 
   const allLines = lines.length > 0 ? lines : text.split('\n').map(l => l.trim()).filter(Boolean);
 
-  // Helper to check if a line is a genuine section header (short line < 40 chars)
+  // Helper to check if a line is a genuine section header (short line < 50 chars)
   const isSectionHeader = (line, regex) => {
     const clean = line.replace(/^[^a-zA-Z0-9]+/, '').replace(/[:-]$/, '').trim();
-    return clean.length < 40 && regex.test(clean);
+    return clean.length < 50 && regex.test(clean);
   };
 
-  const summaryHeaderRegex = /^(summary|professional summary|executive summary|career summary|profile|about me|career objective|objective|overview)/i;
-  const otherHeaderRegex = /^(work experience|professional experience|employment history|experience|internships|education|skills|technical skills|projects|key projects|certifications|awards|languages|publications)/i;
+  const summaryHeaderRegex = /^(summary|professional summary|executive summary|career summary|profile|about me|about|career objective|objective|overview)/i;
+  const otherHeaderRegex = /^(work experience|professional experience|technical experience|employment history|experience|internships|internship experience|education|academic background|academic details|academic qualifications|qualifications|technical skills|skills|projects|key projects|academic projects|personal projects|certifications|awards|languages|publications)/i;
 
   let inSummarySection = false;
   const summaryLines = [];
@@ -126,7 +126,7 @@ const extractWholeProfessionalSummary = (text = '', lines = []) => {
     // Check if line matches a Summary section header
     if (!inSummarySection && isSectionHeader(line, summaryHeaderRegex)) {
       inSummarySection = true;
-      const inlineText = cleanLine.replace(/^(summary|professional summary|executive summary|career summary|profile|about me|career objective|objective|overview)[\s:-]*/i, '').trim();
+      const inlineText = cleanLine.replace(/^(summary|professional summary|executive summary|career summary|profile|about me|about|career objective|objective|overview)[\s:-]*/i, '').trim();
       if (inlineText && inlineText.length > 10) {
         summaryLines.push(inlineText);
       }
@@ -157,11 +157,12 @@ const extractWholeProfessionalSummary = (text = '', lines = []) => {
       break;
     }
 
-    // Exclude contact line candidates (email, phone, URLs) and candidate name header line
+    // Exclude contact line candidates (email, phone, URLs), candidate name header line, AND education/college/degree details
     const isContactLine = line.includes('@') || line.match(/\d{3}[\s.-]?\d{3}/) || /https?:\/\/|linkedin|github/i.test(line);
     const isNameLine = i === 0 && line.length < 35;
+    const isEducationOrCollegeLine = /bachelor|master|b\.tech|btech|mtech|degree|institute|college|university|school|cgpa|gpa|pursuing|\b20\d{2}\s*[-–|]/i.test(line);
 
-    if (!isContactLine && !isNameLine && line.trim().length > 0) {
+    if (!isContactLine && !isNameLine && !isEducationOrCollegeLine && line.trim().length > 0) {
       topSummaryLines.push(line);
     }
   }
@@ -261,7 +262,31 @@ const extractEducationDetails = (text, entities) => {
     return Array.from(new Set(eduEntities)).join(' • ');
   }
 
-  const eduMatch = text.match(/(?:bachelor|master|b\.s|m\.s|b\.a|m\.a|phd|degree|university|college|institute)[\s\S]{10,140}?(?=\n\n|\n[A-Z\s]{4,}|$)/i);
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  const eduLines = [];
+  let inEduSection = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (/^(education|academic background|academic details|academic qualifications|qualifications)/i.test(line)) {
+      inEduSection = true;
+      continue;
+    }
+    if (inEduSection && /^(work experience|professional experience|technical experience|experience|skills|projects|certifications)/i.test(line)) {
+      break;
+    }
+    if (inEduSection || /bachelor|master|b\.tech|btech|mtech|b\.s|m\.s|degree|institute|college|university|cgpa/i.test(line)) {
+      if (line.length < 100 && !line.includes('@')) {
+        eduLines.push(line);
+      }
+    }
+  }
+
+  if (eduLines.length > 0) {
+    return Array.from(new Set(eduLines)).join(' • ');
+  }
+
+  const eduMatch = text.match(/(?:bachelor|master|b\.s|m\.s|b\.a|m\.a|b\.tech|m\.tech|phd|degree|university|college|institute)[\s\S]{10,140}?(?=\n\n|\n[A-Z\s]{4,}|$)/i);
   if (eduMatch) {
     return eduMatch[0].replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
   }
