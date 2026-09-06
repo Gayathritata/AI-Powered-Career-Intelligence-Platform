@@ -307,6 +307,9 @@ const Upload = () => {
     saveParsedProfile(sample.text, sample.entities, sample.predictions, sample.filename);
   };
 
+  const [activeTab, setActiveTab] = useState('file'); // 'file' | 'text' | 'samples'
+  const [pastedText, setPastedText] = useState('');
+
   return (
     <>
       <Navbar />
@@ -319,137 +322,264 @@ const Upload = () => {
             <span>⚡</span> Real-Time Resume Parsing & Prediction
           </div>
           <h1 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 800, marginBottom: 8 }}>
-            Upload Resume for <span className="gradient-text">Instant Output</span>
+            Upload or Paste Resume for <span className="gradient-text">Instant Output</span>
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: 15, maxWidth: 680, margin: '0 auto' }}>
-            Upload your resume to extract SpaCy NER entities (Skills, Roles, Education) and run our Multi-Model AI Ensemble (XGBoost, Random Forest, Logistic Regression & SBERT) to view live accuracy and role predictions on screen.
+            Upload your resume file or paste your resume text to extract SpaCy NER entities (Skills, Roles, Education) and run our Multi-Model AI Ensemble (XGBoost, Random Forest, Logistic Regression & SBERT).
           </p>
         </div>
 
-        {/* Dropzone & Sample selection */}
-        <div style={{ maxWidth: 1000, margin: '0 auto 36px' }}>
-          <div
-            className={`dropzone ${isDragging ? 'active' : ''}`}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            onClick={() => fileInputRef.current?.click()}
-            style={{ padding: '36px 20px', marginBottom: 24 }}
-          >
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileSelect}
-              accept=".pdf,.docx,.doc,.txt"
-              style={{ display: 'none' }}
-            />
-
-            <div style={{
-              width: 56,
-              height: 56,
-              borderRadius: 16,
-              background: 'rgba(99, 102, 241, 0.15)',
-              border: '1px solid rgba(99, 102, 241, 0.3)',
-              display: 'flex',
+        {/* MODE NAVIGATION TABS */}
+        <div style={{ maxWidth: 1000, margin: '0 auto 24px', display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            onClick={() => setActiveTab('file')}
+            style={{
+              padding: '10px 22px',
+              borderRadius: 12,
+              fontWeight: 700,
+              fontSize: 14,
+              border: activeTab === 'file' ? '1px solid #6366f1' : '1px solid var(--border-subtle)',
+              background: activeTab === 'file' ? 'linear-gradient(135deg, rgba(99,102,241,0.25), rgba(79,70,229,0.35))' : 'rgba(255,255,255,0.03)',
+              color: activeTab === 'file' ? '#fff' : 'var(--text-secondary)',
+              cursor: 'pointer',
+              display: 'inline-flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 28,
-              margin: '0 auto 16px',
-            }}>
-              📤
-            </div>
+              gap: 8
+            }}
+          >
+            📄 Upload Resume File
+          </button>
 
-            <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 6 }}>
-              {selectedFile ? `Uploaded: ${selectedFile.name}` : 'Click or Drag & Drop your resume file here'}
-            </h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: 13, marginBottom: 16 }}>
-              Supports PDF, DOCX, and TXT files
-            </p>
+          <button
+            type="button"
+            onClick={() => setActiveTab('text')}
+            style={{
+              padding: '10px 22px',
+              borderRadius: 12,
+              fontWeight: 700,
+              fontSize: 14,
+              border: activeTab === 'text' ? '1px solid #34d399' : '1px solid var(--border-subtle)',
+              background: activeTab === 'text' ? 'linear-gradient(135deg, rgba(52,211,153,0.25), rgba(16,185,129,0.35))' : 'rgba(255,255,255,0.03)',
+              color: activeTab === 'text' ? '#fff' : 'var(--text-secondary)',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8
+            }}
+          >
+            ✍️ Paste Resume Text (Instant Output)
+          </button>
 
-            <button type="button" className="btn-primary" style={{ padding: '8px 22px', fontSize: 14 }} disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <span className="spinner" style={{ width: 14, height: 14 }} />
-                  Processing...
-                </>
-              ) : (
-                'Select Resume File'
+          <button
+            type="button"
+            onClick={() => setActiveTab('samples')}
+            style={{
+              padding: '10px 22px',
+              borderRadius: 12,
+              fontWeight: 700,
+              fontSize: 14,
+              border: activeTab === 'samples' ? '1px solid #60a5fa' : '1px solid var(--border-subtle)',
+              background: activeTab === 'samples' ? 'linear-gradient(135deg, rgba(96,165,250,0.25), rgba(59,130,246,0.35))' : 'rgba(255,255,255,0.03)',
+              color: activeTab === 'samples' ? '#fff' : 'var(--text-secondary)',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8
+            }}
+          >
+            ⚡ Sample Preset Resumes
+          </button>
+        </div>
+
+        {/* Dropzone & Text Input Container */}
+        <div style={{ maxWidth: 1000, margin: '0 auto 36px' }}>
+
+          {/* TAB 1: FILE UPLOAD DROPZONE */}
+          {activeTab === 'file' && (
+            <div
+              className={`dropzone ${isDragging ? 'active' : ''}`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+              style={{ padding: '36px 20px', marginBottom: 24 }}
+            >
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileSelect}
+                accept=".pdf,.docx,.doc,.txt"
+                style={{ display: 'none' }}
+              />
+
+              <div style={{
+                width: 56,
+                height: 56,
+                borderRadius: 16,
+                background: 'rgba(99, 102, 241, 0.15)',
+                border: '1px solid rgba(99, 102, 241, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 28,
+                margin: '0 auto 16px',
+              }}>
+                📤
+              </div>
+
+              <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 6 }}>
+                {selectedFile ? `Uploaded: ${selectedFile.name}` : 'Click or Drag & Drop your resume file here'}
+              </h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: 13, marginBottom: 16 }}>
+                Supports PDF, DOCX, and TXT files
+              </p>
+
+              <button type="button" className="btn-primary" style={{ padding: '8px 22px', fontSize: 14 }} disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <span className="spinner" style={{ width: 14, height: 14 }} />
+                    Processing Upload...
+                  </>
+                ) : (
+                  'Select Resume File'
+                )}
+              </button>
+
+              {analysisResult && (
+                <div style={{ marginTop: 14 }}>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      clearAnalysis();
+                    }}
+                    style={{
+                      background: 'rgba(239, 68, 68, 0.15)',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      color: '#f87171',
+                      borderRadius: 8,
+                      padding: '6px 14px',
+                      fontSize: 13,
+                      cursor: 'pointer',
+                      fontWeight: 600
+                    }}
+                  >
+                    🗑️ Clear Output & Upload Another Resume
+                  </button>
+                </div>
               )}
-            </button>
+            </div>
+          )}
 
-            {analysisResult && (
-              <div style={{ marginTop: 14 }}>
+          {/* TAB 2: PASTE RESUME TEXT */}
+          {activeTab === 'text' && (
+            <div className="glass-card" style={{ padding: 28, marginBottom: 24, borderColor: 'rgba(52,211,153,0.3)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                <h3 style={{ fontSize: 16, fontWeight: 800, margin: 0, color: '#6ee7b7' }}>
+                  ✍️ Paste Resume Text Directly
+                </h3>
+                <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                  Bypasses file upload — Fast & Instant (&lt;1s)
+                </span>
+              </div>
+              <textarea
+                rows={10}
+                value={pastedText}
+                onChange={(e) => setPastedText(e.target.value)}
+                placeholder="Paste your resume text here (e.g. Summary, Skills, Work Experience, Education)..."
+                style={{
+                  width: '100%',
+                  padding: 16,
+                  borderRadius: 10,
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  color: '#fff',
+                  fontSize: 14,
+                  lineHeight: 1.6,
+                  marginBottom: 16,
+                  resize: 'vertical'
+                }}
+              />
+              <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                 <button
                   type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    clearAnalysis();
-                  }}
-                  style={{
-                    background: 'rgba(239, 68, 68, 0.15)',
-                    border: '1px solid rgba(239, 68, 68, 0.3)',
-                    color: '#f87171',
-                    borderRadius: 8,
-                    padding: '6px 14px',
-                    fontSize: 13,
-                    cursor: 'pointer',
-                    fontWeight: 600
-                  }}
+                  onClick={() => setPastedText('')}
+                  className="btn-ghost"
+                  style={{ padding: '10px 18px' }}
                 >
-                  🗑️ Clear Output & Upload Another Resume
+                  Clear Text
+                </button>
+                <button
+                  type="button"
+                  onClick={() => parseTextAndPredict(pastedText, 'Pasted_Resume.txt')}
+                  className="btn-primary"
+                  style={{ padding: '10px 24px', background: 'linear-gradient(135deg, #10b981, #059669)' }}
+                  disabled={isLoading || !pastedText.trim()}
+                >
+                  {isLoading ? (
+                    <>
+                      <span className="spinner" style={{ width: 14, height: 14 }} />
+                      Analyzing Resume Text...
+                    </>
+                  ) : (
+                    '⚡ Analyze Resume Text Now'
+                  )}
                 </button>
               </div>
-            )}
-          </div>
-
-          {/* Quick Sample Presets */}
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 12, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-              Or Select a Sample Resume Preset:
             </div>
+          )}
 
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-              gap: 14,
-            }}>
-              {SAMPLE_RESUMES.map((sample) => (
-                <div
-                  key={sample.role}
-                  className="glass-card"
-                  onClick={() => loadSampleResume(sample)}
-                  style={{
-                    padding: '16px 20px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 14,
-                  }}
-                >
-                  <div style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 10,
-                    background: 'rgba(99,102,241,0.12)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 20,
-                  }}>
-                    {sample.icon}
-                  </div>
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 2 }}>
-                      {sample.role}
+          {/* TAB 3 / ALWAYS VISIBLE PRESETS: QUICK SAMPLE PRESETS */}
+          {(activeTab === 'samples' || activeTab === 'file') && (
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 12, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                Or Select a Sample Resume Preset for Instant Verification:
+              </div>
+
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+                gap: 14,
+              }}>
+                {SAMPLE_RESUMES.map((sample) => (
+                  <div
+                    key={sample.role}
+                    className="glass-card"
+                    onClick={() => loadSampleResume(sample)}
+                    style={{
+                      padding: '16px 20px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 14,
+                    }}
+                  >
+                    <div style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: 10,
+                      background: 'rgba(99,102,241,0.12)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 20,
+                    }}>
+                      {sample.icon}
                     </div>
-                    <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                      {sample.filename}
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 2 }}>
+                        {sample.role}
+                      </div>
+                      <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                        {sample.filename}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {errorMessage && (
