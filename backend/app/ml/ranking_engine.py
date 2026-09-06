@@ -141,7 +141,7 @@ class TopKCareerRankingEngine:
         self._role_req_vectors: Dict[str, np.ndarray] = {}
 
     def _get_role_req_vector(self, role_title: str, req_skills: List[str]) -> np.ndarray:
-        """Cache static role required skills vectors on first access or init."""
+        """Cache static role required skills vectors on first access or init using fast batch encoding."""
         if role_title not in self._role_req_vectors:
             if req_skills:
                 self._role_req_vectors[role_title] = self.embedder.encode(req_skills)

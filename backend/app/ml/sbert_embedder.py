@@ -73,44 +73,73 @@ def get_sbert_model():
 
 
 class SkillSBERTEmbedder:
-    """Handles skill vectorization and semantic similarity calculations."""
+    """Handles skill vectorization and semantic similarity calculations with fast vector caching."""
 
     def __init__(self, model_name: str = MODEL_NAME):
         self.model_name = model_name
+        self._vector_cache: Dict[str, np.ndarray] = {}
 
     def encode(self, texts: Union[str, List[str]]) -> np.ndarray:
-        """Encode single string or list of strings into dense 384-dim vectors."""
-        model = get_sbert_model()
+        """Encode single string or list of strings into dense 384-dim vectors with fast memory caching."""
         if isinstance(texts, str):
             texts = [texts]
 
         if not texts:
             return np.zeros((0, 384), dtype=np.float32)
 
+        cached_results = []
+        missing_indices = []
+        missing_texts = []
+
+        for i, t in enumerate(texts):
+            clean_t = t.strip().lower()
+            if clean_t in self._vector_cache:
+                cached_results.append((i, self._vector_cache[clean_t]))
+            else:
+                missing_indices.append(i)
+                missing_texts.append(t)
+
+        if not missing_texts:
+            return np.array([res[1] for res in sorted(cached_results, key=lambda x: x[0])], dtype=np.float32)
+
+        # Encode only missing texts
+        model = get_sbert_model()
+        new_embeddings = None
+
         if model is not None:
             try:
                 import torch
                 with torch.no_grad():
-                    embeddings = model.encode(texts, convert_to_numpy=True, show_progress_bar=False)
-                return np.asarray(embeddings, dtype=np.float32)
+                    new_embeddings = model.encode(missing_texts, convert_to_numpy=True, show_progress_bar=False)
             except Exception as err:
                 logger.warning(f"SBERT encoding exception: {err}. Using fallback vectorizer.")
-                embeddings = model.encode(texts, convert_to_numpy=True, show_progress_bar=False)
-                return np.asarray(embeddings, dtype=np.float32)
-        else:
-            # Fallback: Hash-based mock embeddings for testing environments without PyTorch/Transformers
-            embeddings = []
-            for t in texts:
+                new_embeddings = None
+
+        if new_embeddings is None:
+            # Fast fallback vectorizer
+            fb_list = []
+            for t in missing_texts:
                 vec = np.zeros(384, dtype=np.float32)
                 words = t.lower().split()
-                for i, w in enumerate(words):
-                    idx = abs(hash(w)) % 384
-                    vec[idx] += 1.0 / (i + 1)
+                for idx, w in enumerate(words):
+                    h_idx = abs(hash(w)) % 384
+                    vec[h_idx] += 1.0 / (idx + 1)
                 norm = np.linalg.norm(vec)
                 if norm > 0:
                     vec = vec / norm
-                embeddings.append(vec)
-            return np.array(embeddings, dtype=np.float32)
+                fb_list.append(vec)
+            new_embeddings = np.array(fb_list, dtype=np.float32)
+
+        # Cache new embeddings
+        for t, vec in zip(missing_texts, new_embeddings):
+            self._vector_cache[t.strip().lower()] = vec
+
+        # Combine cached and newly encoded results
+        for idx, vec in zip(missing_indices, new_embeddings):
+            cached_results.append((idx, vec))
+
+        cached_results.sort(key=lambda x: x[0])
+        return np.array([res[1] for res in cached_results], dtype=np.float32)
 
     def compute_cosine_similarity(self, vec_a: np.ndarray, vec_b: np.ndarray) -> float:
         """Compute cosine similarity between two 1D embedding vectors."""
