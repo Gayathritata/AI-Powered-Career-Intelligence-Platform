@@ -74,26 +74,27 @@ export const parseFullResumeDetails = (text = '', entities = [], predictions = [
  */
 const extractCandidateLocation = (text, lines) => {
   // Check explicit location prefixes
-  const explicitLocMatch = text.match(/(?:location|address|residence|city|based in)[\s:-]+([A-Z][a-zA-Z\s,.-]+(?:\d{5}|\b))/i);
-  if (explicitLocMatch && explicitLocMatch[1] && explicitLocMatch[1].length < 60) {
-    return explicitLocMatch[1].trim();
-  }
-
-  // Regex patterns for standard City, State / Country formats
-  const locPattern = /\b([A-Z][a-zA-S\s.]+,\s*(?:[A-Z]{2}|[A-Z][a-z]+|USA|UK|India|Canada|Australia|Germany|France|Singapore))\b/;
-
-  // Check top 10 header lines for city/state/country
-  for (let i = 0; i < Math.min(10, lines.length); i++) {
-    const match = lines[i].match(locPattern);
-    if (match && !/university|college|school|company|inc|ltd/i.test(match[1])) {
-      return match[1].trim();
+  const explicitLocMatch = text.match(/(?:location|address|residence|city|based in)[\s:-]+([A-Z][a-zA-Z0-9\s,.-]{2,50})/i);
+  if (explicitLocMatch && explicitLocMatch[1]) {
+    const loc = explicitLocMatch[1].trim();
+    if (!/engineer|developer|scientist|analyst|manager|skills|experience|education|summary|project|python|java|react|node|llm|ai|ml|prompt|applications/i.test(loc)) {
+      return loc;
     }
   }
 
-  // General body match
-  const bodyMatch = text.match(locPattern);
-  if (bodyMatch && !/university|college|school|company|inc|ltd/i.test(bodyMatch[1])) {
-    return bodyMatch[1].trim();
+  // Strict City, State / Country format matching ONLY top 5 header lines of the resume
+  const locPattern = /\b([A-Z][a-zA-Z\s.]+,\s*(?:[A-Z]{2}|USA|US|UK|India|Canada|Australia|Germany|France|Singapore|UAE|Japan))\b/;
+
+  const headerLinesCount = Math.min(5, lines.length);
+  for (let i = 0; i < headerLinesCount; i++) {
+    const line = lines[i];
+    if (/skill|experience|project|developer|engineer|analyst|manager|summary|education|university|college|school|llm|prompt|applications/i.test(line)) {
+      continue;
+    }
+    const match = line.match(locPattern);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
   }
 
   return 'Not specified in resume';
@@ -114,7 +115,7 @@ const extractWholeProfessionalSummary = (text = '', lines = []) => {
   };
 
   const summaryHeaderRegex = /^(summary|professional summary|executive summary|career summary|profile|about me|about|career objective|objective|overview)/i;
-  const otherHeaderRegex = /^(work experience|professional experience|technical experience|employment history|experience|internships|internship experience|education|academic background|academic details|academic qualifications|qualifications|technical skills|skills|projects|key projects|academic projects|personal projects|certifications|awards|languages|publications)/i;
+  const otherHeaderRegex = /^(work experience|professional experience|technical experience|employment history|experience|internships|internship experience|education|academic background|academic details|academic qualifications|qualifications|technical skills|skills|key skills|core competencies|projects|key projects|academic projects|personal projects|certifications|awards|languages|publications)/i;
 
   let inSummarySection = false;
   const summaryLines = [];
@@ -199,7 +200,7 @@ const extractExperienceAndInternships = (text, roleEntities, defaultRole) => {
     }
 
     // Detect Next Major Section
-    if (inExpSection && /^(education|projects|skills|technical skills|certifications|awards|languages|publications)/i.test(line)) {
+    if (inExpSection && /^(education|academic background|academic qualifications|qualifications|projects|key projects|skills|technical skills|key skills|core competencies|certifications|awards|languages|publications)/i.test(line)) {
       break;
     }
 
@@ -258,37 +259,57 @@ const extractExperienceAndInternships = (text, roleEntities, defaultRole) => {
  */
 const extractEducationDetails = (text, entities) => {
   const eduEntities = entities.filter(e => e.label === 'EDUCATION').map(e => e.text);
-  if (eduEntities.length > 0) {
-    return Array.from(new Set(eduEntities)).join(' • ');
-  }
 
   const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
   const eduLines = [];
   let inEduSection = false;
 
+  const eduHeaderRegex = /^(education|academic background|academic details|academic qualifications|qualifications)/i;
+  const nextSectionHeaderRegex = /^(work experience|professional experience|technical experience|employment history|experience|internships|internship experience|skills|technical skills|key skills|core competencies|projects|key projects|academic projects|personal projects|summary|professional summary|objective|certifications|awards|languages|publications)/i;
+
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    if (/^(education|academic background|academic details|academic qualifications|qualifications)/i.test(line)) {
+    const cleanLine = line.replace(/^[^a-zA-Z0-9]+/, '').replace(/[:-]$/, '').trim();
+
+    if (cleanLine.length < 50 && eduHeaderRegex.test(cleanLine)) {
       inEduSection = true;
       continue;
     }
-    if (inEduSection && /^(work experience|professional experience|technical experience|experience|skills|projects|certifications)/i.test(line)) {
+
+    if (inEduSection && cleanLine.length < 50 && nextSectionHeaderRegex.test(cleanLine)) {
       break;
     }
-    if (inEduSection || /bachelor|master|b\.tech|btech|mtech|b\.s|m\.s|degree|institute|college|university|cgpa/i.test(line)) {
-      if (line.length < 100 && !line.includes('@')) {
+
+    if (inEduSection) {
+      if (line.length < 120 && !line.includes('@')) {
         eduLines.push(line);
       }
     }
   }
 
   if (eduLines.length > 0) {
-    return Array.from(new Set(eduLines)).join(' • ');
+    return Array.from(new Set(eduLines)).join('\n');
   }
 
-  const eduMatch = text.match(/(?:bachelor|master|b\.s|m\.s|b\.a|m\.a|b\.tech|m\.tech|phd|degree|university|college|institute)[\s\S]{10,140}?(?=\n\n|\n[A-Z\s]{4,}|$)/i);
-  if (eduMatch) {
-    return eduMatch[0].replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
+  if (eduEntities.length > 0) {
+    return Array.from(new Set(eduEntities)).join('\n');
+  }
+
+  // Fallback: If no explicit EDUCATION section header was found, extract degree/college lines from header/text
+  const fallbackEduLines = [];
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const cleanLine = line.replace(/^[^a-zA-Z0-9]+/, '').replace(/[:-]$/, '').trim();
+    if (cleanLine.length < 50 && nextSectionHeaderRegex.test(cleanLine)) {
+      continue;
+    }
+    if (/bachelor|master|b\.tech|btech|mtech|b\.s|m\.s|degree|institute|college|university|cgpa|gpa|pursuing/i.test(line) && !line.includes('@') && line.length < 120) {
+      fallbackEduLines.push(line);
+    }
+  }
+
+  if (fallbackEduLines.length > 0) {
+    return Array.from(new Set(fallbackEduLines)).join('\n');
   }
 
   return 'No education credentials section found in uploaded resume.';
