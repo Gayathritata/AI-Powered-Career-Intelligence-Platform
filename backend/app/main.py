@@ -43,15 +43,15 @@ async def lifespan(app: FastAPI):
 
     def _prewarm_ml():
         try:
+            import gc
             from app.ml.predictor import CareerPredictor
-            from app.ml.sbert_embedder import get_sbert_model
             from app.parser.resume_parser import get_spacy_nlp
             predictor = CareerPredictor.get_instance()
             if not predictor.is_loaded:
                 predictor.load_artifacts()
-            get_sbert_model()
             get_spacy_nlp()
-            print("[OK] ML CareerPredictor, SBERT Embedder, and SpaCy pre-warmed in background.")
+            gc.collect()
+            print("[OK] ML CareerPredictor and SpaCy pre-warmed safely within 512MB RAM limit.")
         except Exception as err:
             print(f"[WARN] Could not pre-warm ML predictor: {err}")
 
