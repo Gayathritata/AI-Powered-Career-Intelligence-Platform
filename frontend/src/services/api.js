@@ -39,16 +39,42 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// ── Response interceptor — handle 401 globally ─────────────────────────────
+// ── Response interceptor — handle 401, auto-retry cold-starts, & format network errors ──
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
+    const config = error.config;
+
+    // Handle 401 Unauthorized
     if (error.response?.status === 401) {
-      // Token expired or invalid → clear storage and redirect to login
       localStorage.removeItem('careercast_token');
       localStorage.removeItem('careercast_user');
       window.location.href = '/login';
+      return Promise.reject(error);
     }
+
+    // Auto-retry once or twice for cold starts / temporary 502/503 network drops
+    if (config && (!error.response || [502, 503, 504].includes(error.response?.status))) {
+      config._retryCount = config._retryCount || 0;
+      if (config._retryCount < 2) {
+        config._retryCount += 1;
+        console.log(`[API Interceptor] Retrying request due to network drop / cold-start (Attempt ${config._retryCount}/2)...`);
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        return api(config);
+      }
+    }
+
+    // Format generic "Network Error" into a clear, actionable user message
+    if (error.message === 'Network Error' || error.code === 'ERR_NETWORK' || !error.response) {
+      error.userFriendlyMessage =
+        'Backend server connection issue. If using Render free hosting, the server may be spinning up from a cold start (~30s delay) or memory pressure occurred. Please wait a moment and try again.';
+    } else if (error.response?.data?.detail) {
+      const detail = error.response.data.detail;
+      error.userFriendlyMessage = typeof detail === 'string' ? detail : JSON.stringify(detail);
+    } else {
+      error.userFriendlyMessage = error.message || 'An unexpected API error occurred.';
+    }
+
     return Promise.reject(error);
   }
 );

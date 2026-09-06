@@ -189,11 +189,13 @@ const extractExperienceAndInternships = (text, roleEntities, defaultRole) => {
   let currentDuration = '';
   let currentBullets = [];
 
+  const expHeaderRegex = /^(technical experience|work experience|professional experience|technical work experience|employment history|experience|internships|internship experience|career history|technical \/ professional experience|technical & professional experience)/i;
+
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
 
-    // Detect Experience Section Start
-    if (/^(work experience|professional experience|employment history|experience|internships|internship experience|career history)/i.test(line)) {
+    // Detect Experience Section Start (including TECHNICAL EXPERIENCE)
+    if (expHeaderRegex.test(line)) {
       inExpSection = true;
       detectedHeading = line;
       continue;
@@ -206,7 +208,7 @@ const extractExperienceAndInternships = (text, roleEntities, defaultRole) => {
 
     if (inExpSection) {
       const isDateLine = /\b(?:19|20)\d{2}\b|\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|Present|Current)\b/i.test(line);
-      const isRoleLine = /engineer|developer|architect|scientist|analyst|manager|lead|intern|associate|consultant|specialist|designer|administrator/i.test(line);
+      const isRoleLine = /engineer|developer|architect|scientist|analyst|manager|lead|intern|associate|consultant|specialist|designer|administrator|programmer|technician|contractor|freelancer/i.test(line);
 
       if ((isRoleLine || isDateLine) && line.length < 90 && !line.startsWith('-') && !line.startsWith('•') && !line.startsWith('*')) {
         if (currentTitle || currentCompany) {
@@ -236,7 +238,10 @@ const extractExperienceAndInternships = (text, roleEntities, defaultRole) => {
         currentBullets = [];
       } else if (line.startsWith('-') || line.startsWith('•') || line.startsWith('*')) {
         currentBullets.push(line.replace(/^[-•*]\s*/, ''));
-      } else if (currentTitle && line.length > 15 && currentBullets.length < 5) {
+      } else if (line.length > 10) {
+        if (!currentTitle) {
+          currentTitle = 'Technical Role / Experience';
+        }
         currentBullets.push(line);
       }
     }
@@ -264,8 +269,8 @@ const extractEducationDetails = (text, entities) => {
   const eduLines = [];
   let inEduSection = false;
 
-  const eduHeaderRegex = /^(education|academic background|academic details|academic qualifications|qualifications)/i;
-  const nextSectionHeaderRegex = /^(work experience|professional experience|technical experience|employment history|experience|internships|internship experience|skills|technical skills|key skills|core competencies|projects|key projects|academic projects|personal projects|summary|professional summary|objective|certifications|awards|languages|publications)/i;
+  const eduHeaderRegex = /^(education|educational background|educational qualifications|academic background|academic details|academic qualifications|qualifications|education & credentials|education & qualifications|education and qualifications)/i;
+  const nextSectionHeaderRegex = /^(work experience|professional experience|technical experience|technical work experience|employment history|experience|internships|internship experience|skills|technical skills|key skills|core competencies|projects|key projects|academic projects|personal projects|summary|professional summary|objective|certifications|awards|languages|publications)/i;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];

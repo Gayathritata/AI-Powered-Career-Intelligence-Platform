@@ -84,10 +84,14 @@ st.markdown("""
 
 @st.cache_resource
 def load_predictor():
-    p = CareerPredictor.get_instance()
-    if not p.is_loaded:
-        p.load_artifacts()
-    return p
+    try:
+        p = CareerPredictor.get_instance()
+        if not p.is_loaded:
+            p.load_artifacts()
+        return p
+    except Exception as e:
+        print(f"[WARN] Predictor load warning: {e}")
+        return CareerPredictor.get_instance()
 
 
 predictor = load_predictor()

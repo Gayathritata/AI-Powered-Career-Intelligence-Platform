@@ -15,6 +15,9 @@ os.environ["NUMEXPR_NUM_THREADS"] = "1"
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 os.environ["PYTHONHASHSEED"] = "42"
 
+if "RENDER" in os.environ or "RENDER_SERVICE_ID" in os.environ or "CLOUD_ENV" in os.environ:
+    os.environ.setdefault("LOW_MEMORY_MODE", "true")
+
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -79,13 +82,7 @@ app = FastAPI(
 # ── CORS Middleware ───────────────────────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:8000",
-        "http://127.0.0.1:8000",
-    ],
-    allow_origin_regex=r"https://.*\.vercel\.app|http://(localhost|127\.0\.0\.1):(3000|8000|5173)",
+    allow_origin_regex=r".*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

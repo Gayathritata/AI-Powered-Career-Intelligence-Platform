@@ -258,10 +258,7 @@ const Upload = () => {
           file._isRetry = true;
           return await uploadFileToApi(file);
         }
-        const backendDetail = err.response?.data?.detail;
-        const msg = backendDetail
-          ? (typeof backendDetail === 'string' ? backendDetail : JSON.stringify(backendDetail))
-          : (err.message || 'Failed to extract resume text. Please ensure the backend server is running and upload a valid PDF, DOCX, or TXT file.');
+        const msg = err.userFriendlyMessage || err.response?.data?.detail || err.message || 'Failed to extract resume text. Please ensure the backend server is running.';
         setErrorMessage(msg);
       }
     } finally {
@@ -269,22 +266,14 @@ const Upload = () => {
     }
   };
 
-  const parseTextAndPredict = async (rawText, fileName = 'Pasted_Resume.txt') => {
-    if (!rawText.trim()) {
-      setErrorMessage('Please enter or paste your resume text to analyze.');
-      return;
-    }
+  const parseTextAndPredict = async (rawText, fileName) => {
     setIsLoading(true);
     setErrorMessage('');
-
-    // Pre-save instant client-side parsed profile (0.01s response)
-    const localParsedProfile = saveParsedProfile(rawText, [], [], fileName);
-
     try {
       const res = await api.post('/recommendation/predict', { text: rawText, top_n: 5 });
       if (res.data) {
         const resultData = {
-          text: res.data.text || rawText,
+          text: res.data.text,
           entities: res.data.entities || [],
           modelName: res.data.model_name || 'XGBoost Ensemble Model',
           top1Accuracy: res.data.top1_accuracy || res.data.confidence,
@@ -295,21 +284,7 @@ const Upload = () => {
         saveParsedProfile(resultData.text, resultData.entities, resultData.predictions, fileName);
       }
     } catch (e) {
-      console.warn('Backend API connection slow or failed, displaying instant client-side parsed profile:', e);
-      const fallbackPredictions = [
-        { career: localParsedProfile.title || "Full Stack Developer", confidence: 95.8 },
-        { career: "Software Engineer", confidence: 89.4 },
-        { career: "Web Developer", confidence: 84.1 }
-      ];
-      const resultData = {
-        text: rawText,
-        entities: [],
-        modelName: 'Multi-Model AI Ensemble',
-        top1Accuracy: 95.82,
-        predictions: fallbackPredictions
-      };
-      setAnalysisResult(resultData);
-      sessionStorage.setItem('careercast_active_analysis', JSON.stringify(resultData));
+      setErrorMessage('Failed to connect to ML prediction service. Please ensure the backend server is running.');
     } finally {
       setIsLoading(false);
     }
@@ -371,46 +346,6 @@ const Upload = () => {
             }}
           >
             📄 Upload Resume File
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('text')}
-            style={{
-              padding: '10px 22px',
-              borderRadius: 12,
-              fontWeight: 700,
-              fontSize: 14,
-              border: activeTab === 'text' ? '1px solid #34d399' : '1px solid var(--border-subtle)',
-              background: activeTab === 'text' ? 'linear-gradient(135deg, rgba(52,211,153,0.25), rgba(16,185,129,0.35))' : 'rgba(255,255,255,0.03)',
-              color: activeTab === 'text' ? '#fff' : 'var(--text-secondary)',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8
-            }}
-          >
-            ✍️ Paste Resume Text (Instant Output)
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('samples')}
-            style={{
-              padding: '10px 22px',
-              borderRadius: 12,
-              fontWeight: 700,
-              fontSize: 14,
-              border: activeTab === 'samples' ? '1px solid #60a5fa' : '1px solid var(--border-subtle)',
-              background: activeTab === 'samples' ? 'linear-gradient(135deg, rgba(96,165,250,0.25), rgba(59,130,246,0.35))' : 'rgba(255,255,255,0.03)',
-              color: activeTab === 'samples' ? '#fff' : 'var(--text-secondary)',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8
-            }}
-          >
-            ⚡ Sample Preset Resumes
           </button>
         </div>
 
@@ -608,15 +543,43 @@ const Upload = () => {
           <div style={{
             maxWidth: 1000,
             margin: '0 auto 20px',
-            padding: 16,
+            padding: 20,
             borderRadius: 12,
             background: 'rgba(239, 68, 68, 0.15)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
+            border: '1px solid rgba(239, 68, 68, 0.35)',
             color: '#f87171',
             fontSize: 14,
-            textAlign: 'center'
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 12
           }}>
-            {errorMessage}
+            <div>
+              <strong style={{ display: 'block', marginBottom: 4, fontSize: 15 }}>
+                ⚠️ Connection / Service Notice
+              </strong>
+              {errorMessage}
+            </div>
+            {selectedFile && (
+              <button
+                type="button"
+                onClick={() => uploadFileToApi(selectedFile)}
+                style={{
+                  background: '#ef4444',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 8,
+                  padding: '8px 18px',
+                  fontWeight: 700,
+                  fontSize: 13,
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
+                }}
+              >
+                🔄 Retry Upload Connection
+              </button>
+            )}
           </div>
         )}
 

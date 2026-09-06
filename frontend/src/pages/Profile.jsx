@@ -277,7 +277,7 @@ const Profile = () => {
           {/* WORK EXPERIENCE & INTERNSHIPS CARD */}
           <div className="glass-card fade-in-up" style={{ padding: 32, marginBottom: 28 }}>
             <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 18, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-              💼 Work Experience & Internships
+              💼 {profileData.experienceHeading || 'Work Experience & Internships'}
             </h3>
             {experienceItems.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>

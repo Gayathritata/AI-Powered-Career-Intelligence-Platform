@@ -98,16 +98,30 @@ class CareerPredictor:
                 self.vectorizer = joblib.load(VECTORIZER_PATH)
                 self.label_encoder = joblib.load(ENCODER_PATH)
 
-                if os.path.exists(LR_MODEL_PATH):
-                    self.lr_model = joblib.load(LR_MODEL_PATH)
-                if os.path.exists(RF_MODEL_PATH):
-                    self.rf_model = joblib.load(RF_MODEL_PATH)
+                import gc
+
+                # Primary high-precision classifiers
                 if os.path.exists(XGB_MODEL_PATH):
-                    self.xgb_model = joblib.load(XGB_MODEL_PATH)
+                    try:
+                        self.xgb_model = joblib.load(XGB_MODEL_PATH)
+                    except Exception as err:
+                        print(f"[WARN] Could not load XGBoost model: {err}")
+                
+                if os.path.exists(LR_MODEL_PATH):
+                    try:
+                        self.lr_model = joblib.load(LR_MODEL_PATH)
+                    except Exception as err:
+                        print(f"[WARN] Could not load Logistic Regression model: {err}")
+
+                # Optional ensemble classifier (Random Forest)
+                if os.path.exists(RF_MODEL_PATH):
+                    try:
+                        self.rf_model = joblib.load(RF_MODEL_PATH)
+                    except Exception as err:
+                        print(f"[WARN] Random Forest model omitted to conserve memory: {err}")
 
                 self.is_loaded = True
                 print("[OK] CareerPredictor model artifacts loaded successfully.")
-                import gc
                 gc.collect()
                 return True
             except Exception as e:
