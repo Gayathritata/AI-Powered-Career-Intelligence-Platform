@@ -325,6 +325,67 @@ const Upload = () => {
             Upload your resume file or paste your resume text to extract SpaCy NER entities (Skills, Roles, Education) and run our Multi-Model AI Ensemble (XGBoost, Random Forest, Logistic Regression & SBERT).
           </p>
         </div>
+        <div style={{ maxWidth: 1000, margin: '0 auto 24px', display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            onClick={() => setActiveTab('file')}
+            style={{
+              padding: '10px 22px',
+              borderRadius: 12,
+              fontWeight: 700,
+              fontSize: 14,
+              border: activeTab === 'file' ? '1px solid #6366f1' : '1px solid var(--border-subtle)',
+              background: activeTab === 'file' ? 'linear-gradient(135deg, rgba(99,102,241,0.25), rgba(79,70,229,0.35))' : 'rgba(255,255,255,0.03)',
+              color: activeTab === 'file' ? '#fff' : 'var(--text-secondary)',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8
+            }}
+          >
+            📄 Upload Resume File
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('text')}
+            style={{
+              padding: '10px 22px',
+              borderRadius: 12,
+              fontWeight: 700,
+              fontSize: 14,
+              border: activeTab === 'text' ? '1px solid #34d399' : '1px solid var(--border-subtle)',
+              background: activeTab === 'text' ? 'linear-gradient(135deg, rgba(52,211,153,0.25), rgba(16,185,129,0.35))' : 'rgba(255,255,255,0.03)',
+              color: activeTab === 'text' ? '#fff' : 'var(--text-secondary)',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8
+            }}
+          >
+            ✍️ Paste Resume Text (Instant Output)
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('samples')}
+            style={{
+              padding: '10px 22px',
+              borderRadius: 12,
+              fontWeight: 700,
+              fontSize: 14,
+              border: activeTab === 'samples' ? '1px solid #60a5fa' : '1px solid var(--border-subtle)',
+              background: activeTab === 'samples' ? 'linear-gradient(135deg, rgba(96,165,250,0.25), rgba(59,130,246,0.35))' : 'rgba(255,255,255,0.03)',
+              color: activeTab === 'samples' ? '#fff' : 'var(--text-secondary)',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8
+            }}
+          >
+            ⚡ Sample Preset Resumes
+          </button>
+        </div>
 
         {/* Dropzone & Text Input Container */}
         <div style={{ maxWidth: 1000, margin: '0 auto 36px' }}>
