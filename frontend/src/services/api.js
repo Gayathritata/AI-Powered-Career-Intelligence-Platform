@@ -21,7 +21,7 @@ const getBaseUrl = () => {
 
 const api = axios.create({
   baseURL: getBaseUrl(),
-  timeout: 120000, // 120 seconds timeout for ML model inference and resume parsing
+  timeout: 300000, // 300 seconds timeout for cloud cold-starts, ML model inference and resume parsing
   headers: {
     'Content-Type': 'application/json',
   },

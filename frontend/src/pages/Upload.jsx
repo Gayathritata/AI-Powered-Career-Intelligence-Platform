@@ -253,6 +253,11 @@ const Upload = () => {
         };
         reader.readAsText(file);
       } else {
+        if ((err.code === 'ECONNABORTED' || err.message?.includes('timeout')) && !file._isRetry) {
+          console.log('[Upload] Server cold start detected. Retrying request now that server is awake...');
+          file._isRetry = true;
+          return await uploadFileToApi(file);
+        }
         const backendDetail = err.response?.data?.detail;
         const msg = backendDetail
           ? (typeof backendDetail === 'string' ? backendDetail : JSON.stringify(backendDetail))
