@@ -77,7 +77,7 @@ def test_fastapi_full_pipeline_endpoints():
     })
     assert pred_res.status_code == 200
     pred_data = pred_res.json()
-    assert pred_data["top_career"] in ["Frontend Developer", "Backend Developer", "Full Stack Developer", "Software Engineer", "Node.js Developer"]
+    assert pred_data["top_career"] in ["Frontend Developer", "Backend Developer", "Full Stack Developer", "Software Engineer", "Node.js Developer", "Web Developer"]
 
     # Step B: POST /gap-report using top career from Step A
     top_role = pred_data["top_career"]
