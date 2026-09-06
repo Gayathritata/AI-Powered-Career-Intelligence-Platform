@@ -326,29 +326,6 @@ const Upload = () => {
           </p>
         </div>
 
-        {/* MODE NAVIGATION TABS */}
-        <div style={{ maxWidth: 1000, margin: '0 auto 24px', display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
-          <button
-            type="button"
-            onClick={() => setActiveTab('file')}
-            style={{
-              padding: '10px 22px',
-              borderRadius: 12,
-              fontWeight: 700,
-              fontSize: 14,
-              border: activeTab === 'file' ? '1px solid #6366f1' : '1px solid var(--border-subtle)',
-              background: activeTab === 'file' ? 'linear-gradient(135deg, rgba(99,102,241,0.25), rgba(79,70,229,0.35))' : 'rgba(255,255,255,0.03)',
-              color: activeTab === 'file' ? '#fff' : 'var(--text-secondary)',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8
-            }}
-          >
-            📄 Upload Resume File
-          </button>
-        </div>
-
         {/* Dropzone & Text Input Container */}
         <div style={{ maxWidth: 1000, margin: '0 auto 36px' }}>
 
