@@ -51,6 +51,8 @@ export const parseFullResumeDetails = (text = '', entities = [], predictions = [
   const projects = extractProjectsDetails(rawText, allSkills);
 
   return {
+    rawText: rawText,
+    text: rawText,
     name: candidateName,
     title: topPredictedRole,
     predictedCareer: topPredictedRole,
