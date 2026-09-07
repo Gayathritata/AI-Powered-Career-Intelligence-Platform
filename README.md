@@ -2,8 +2,6 @@
 
 CareerCast is an AI-powered Career Recommendation System developed as part of the **Infosys Springboard Internship**. The application analyzes a user's uploaded resume using Natural Language Processing (NLP) and Machine Learning (ML) to predict the most suitable career paths, identify skill gaps, evaluate ATS compatibility, and recommend courses for career improvement.
 
-> **Note:** The uploaded resume is used only for extracting information during processing and is **not stored permanently**.
-
 ---
 
 ### 📊 Model Evaluation Metrics
