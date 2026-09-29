@@ -133,7 +133,13 @@ class SkillSBERTEmbedder:
                 fb_list.append(vec)
             new_embeddings = np.array(fb_list, dtype=np.float32)
 
-        # Cache new embeddings
+        # Cache new embeddings with MAX_CACHE_SIZE bound to prevent memory growth/leaks on 512MB RAM hosts
+        MAX_CACHE_SIZE = 500
+        if len(self._vector_cache) + len(missing_texts) > MAX_CACHE_SIZE:
+            self._vector_cache.clear()
+            import gc
+            gc.collect()
+
         for t, vec in zip(missing_texts, new_embeddings):
             self._vector_cache[t.strip().lower()] = vec
 

@@ -189,6 +189,9 @@ async def upload_and_predict_resume(
         ) for item in entities_raw
     ]
 
+    import gc
+    gc.collect()
+
     return PredictCareerResponse(
         text=extracted_text,
         entities=entities,
