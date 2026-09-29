@@ -5,6 +5,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import ServerWarmupBanner from './components/ServerWarmupBanner';
 
 // Pages
 import Dashboard from './pages/Dashboard';
@@ -43,6 +44,7 @@ const App = () => {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <ServerWarmupBanner />
         <React.Suspense fallback={<Fallback />}>
           <Routes>
             {/* Public routes redirect straight to Dashboard */}

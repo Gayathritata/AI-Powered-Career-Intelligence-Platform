@@ -1,0 +1,15 @@
+name: Keep Alive Render Backend
+
+on:
+  schedule:
+    # Run every 10 minutes to prevent Render free instance from spinning down (15 min sleep timeout)
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Render Backend Health Endpoint
+        run: |
+          curl -s -f https://ai-powered-career-intelligence-platform-teik.onrender.com/health || echo "Backend ping attempted"

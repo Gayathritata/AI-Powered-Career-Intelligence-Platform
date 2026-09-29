@@ -118,6 +118,7 @@ def root_get_mlflow_models():
 
 # ── Health check ──────────────────────────────────────────────────────────────
 @app.get("/health", tags=["Health"])
+@app.get(f"{API_PREFIX}/health", tags=["Health"])
 def health_check():
     """Returns service health status."""
     return {
